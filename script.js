@@ -1040,6 +1040,25 @@
             ${esc(cfg.heroLine)}
           </p>
 
+          <div
+            class="hero__nalaks hero-anim"
+            style="--d:1.08s"
+            aria-label="NALAKS"
+          >
+            <img
+              class="hero__nalaks-logo hero__nalaks-logo--dark"
+              src="${esc(cfg.assets?.nalaksWhiteLogo || 'assets/nalaks-white-logo.webp')}"
+              alt="NALAKS"
+              decoding="async"
+            >
+            <img
+              class="hero__nalaks-logo hero__nalaks-logo--light"
+              src="${esc(cfg.assets?.nalaksBlueLogo || 'assets/nalaks-blue-logo.webp')}"
+              alt="NALAKS"
+              decoding="async"
+            >
+          </div>
+
           <button
             type="button"
             class="hero__begin hero-anim"
@@ -2068,7 +2087,27 @@
           ${esc(cfg.groom)}
         </p>
 
-              <p
+        <div
+          class="footer__nalaks"
+          aria-label="NALAKS"
+        >
+          <img
+            class="footer__nalaks-logo footer__nalaks-logo--dark"
+            src="${esc(cfg.assets?.nalaksWhiteLogo || 'assets/nalaks-white-logo.webp')}"
+            alt="NALAKS"
+            loading="lazy"
+            decoding="async"
+          >
+          <img
+            class="footer__nalaks-logo footer__nalaks-logo--light"
+            src="${esc(cfg.assets?.nalaksBlueLogo || 'assets/nalaks-blue-logo.webp')}"
+            alt="NALAKS"
+            loading="lazy"
+            decoding="async"
+          >
+        </div>
+
+        <p
           class="footer__date"
         >
           ${esc(cfg.dateLabel)}
