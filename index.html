@@ -2,76 +2,106 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#050914" />
-  <title>Palak &amp; Nalin — Wedding Invitation</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Sans:wght@400;500;600&family=Great+Vibes&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1"
+  />
+
+  <meta
+    name="theme-color"
+    content="#050914"
+  />
+
+  <meta
+    name="description"
+    content="Palak & Nalin — Wedding Invitation"
+  />
+
+  <meta
+    property="og:type"
+    content="website"
+  />
+
+  <meta
+    property="og:title"
+    content="Palak & Nalin — Wedding Invitation"
+  />
+
+  <meta
+    property="og:description"
+    content="03 DECEMBER 2026 · Lucknow · The Hilton Lucknow"
+  />
+
+  <meta
+    property="og:image"
+    content="assets/share-card.png"
+  />
+
+  <meta
+    property="og:url"
+    content="https://palaknalin.live/"
+  />
+
+  <meta
+    name="twitter:card"
+    content="summary_large_image"
+  />
+
+  <title>
+    Palak &amp; Nalin — Wedding Invitation
+  </title>
+
+  <!-- Fonts -->
+  <link
+    rel="preconnect"
+    href="https://fonts.googleapis.com"
+  />
+
+  <link
+    rel="preconnect"
+    href="https://fonts.gstatic.com"
+    crossorigin
+  />
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Sans:wght@400;500;600&family=Great+Vibes&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- Website stylesheet -->
+  <link
+    rel="stylesheet"
+    href="styles.css"
+  />
+
+  <!-- Favicon -->
+  <link
+    rel="icon"
+    type="image/png"
+    href="assets/favicon.png"
+  />
+
+  <link
+    rel="icon"
+    type="image/svg+xml"
+    href="assets/favicon.svg"
+  />
 </head>
+
 <body>
+
+  <!--
+    Everything on the invitation is rendered
+    dynamically by script.js into this container.
+  -->
   <div id="app"></div>
 
-  <aside class="customizer" id="customizer" aria-hidden="true">
-    <div class="customizer__head">
-      <div>
-        <small>INVITATION BUILDER</small>
-        <h2>Customize</h2>
-      </div>
-      <button class="icon-btn" id="closeCustomizer" aria-label="Close">×</button>
-    </div>
-    <div class="customizer__body">
-      <section>
-        <h3>Couple</h3>
-        <label>Bride <input id="cfgBride" type="text"></label>
-        <label>Groom <input id="cfgGroom" type="text"></label>
-        <label>City <input id="cfgCity" type="text"></label>
-        <label>Wedding date <input id="cfgDate" type="date"></label>
-      </section>
-      <section>
-        <h3>Appearance</h3>
-        <label>Background image <input id="cfgBackground" type="file" accept="image/*"></label>
-        <label>Accent <input id="cfgAccent" type="color"></label>
-        <label>Gold <input id="cfgGold" type="color"></label>
-        <label>Dark background <input id="cfgDark" type="color"></label>
-      </section>
-      <section>
-        <h3>Opening screen</h3>
-        <label>Opening text <input id="cfgOpenText" type="text"></label>
-        <label>Logo text <input id="cfgLogo" type="text"></label>
-      </section>
-      <section>
-        <h3>Sections</h3>
-        <label class="check-label"><input id="sec-cover" type="checkbox"> Cover</label>
-        <label class="check-label"><input id="sec-invitation" type="checkbox"> Invitation card</label>
-        <label class="check-label"><input id="sec-celebrations" type="checkbox"> Celebrations</label>
-        <label class="check-label"><input id="sec-couple" type="checkbox"> Couple / gallery</label>
-        <label class="check-label"><input id="sec-footer" type="checkbox"> Footer</label>
-      </section>
-      <section>
-        <h3>Celebrations / events</h3>
-        <div id="cfgEvents"></div>
-        <button class="wide-btn" id="addEvent" type="button">+ Add event</button>
-      </section>
-      <section>
-        <h3>Gallery photos</h3>
-        <div id="cfgGallery"></div>
-        <button class="wide-btn" id="addGallery" type="button">+ Add photo</button>
-      </section>
-      <section>
-        <h3>Quick actions</h3>
-        <button class="wide-btn" id="exportConfig">Export configuration</button>
-        <label class="wide-btn file-btn">Import configuration <input id="importConfig" type="file" accept="application/json"></label>
-        <button class="wide-btn" id="resetConfig">Reset defaults</button>
-      </section>
-      <p class="customizer__note">This editor stores changes in your browser. For deployment, edit <code>config.js</code> or export the configuration.</p>
-    </div>
-  </aside>
-
-  <div class="customizer-backdrop" id="customizerBackdrop"></div>
-
+  <!-- Configuration -->
   <script src="config.js"></script>
+
+  <!-- Main website -->
   <script src="script.js"></script>
+
 </body>
 </html>
