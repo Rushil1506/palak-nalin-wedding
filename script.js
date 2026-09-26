@@ -1,4 +1,18 @@
 (() => {
+    const savedTheme =
+    localStorage.getItem(
+      'palak-theme'
+    );
+
+  document.documentElement.dataset.theme =
+    savedTheme === 'light'
+      ? 'light'
+      : 'dark';
+
+  document.documentElement.style.colorScheme =
+    savedTheme === 'light'
+      ? 'light'
+      : 'dark';
   const cfg = window.INVITE_CONFIG || {};
   const $ = (selector) => document.querySelector(selector);
 
