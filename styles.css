@@ -483,13 +483,20 @@ body.menu-open .mobile-menu {
 .hero {
   position: relative;
 
+  height: 100svh;
+  height: 100dvh;
+
   min-height: 100svh;
+  min-height: 100dvh;
+
+  max-height: 100svh;
+  max-height: 100dvh;
 
   display: grid;
   place-items: center;
 
   padding:
-    112px 20px 124px;
+    92px 20px 92px;
 
   overflow: hidden;
 
@@ -561,12 +568,16 @@ html[data-theme="light"]
   z-index: 3;
 
   inset:
-    clamp(12px, 2.4vw, 26px);
+    14px;
+
+  box-sizing:
+    border-box;
 
   border:
-    var(--hairline);
+    1px solid rgba(200,165,94,.48);
 
-  pointer-events: none;
+  pointer-events:
+    none;
 }
 
 .hero__frame::before {
