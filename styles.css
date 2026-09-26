@@ -662,7 +662,7 @@ html[data-theme="light"]
   max-width: 860px;
 
   padding-bottom:
-    96px;
+    54px;
 
   text-align: center;
 }
@@ -3709,8 +3709,17 @@ html[data-theme="light"]
   }
 
   .hero {
+    height: 100svh;
+    height: 100dvh;
+
+    min-height: 100svh;
+    min-height: 100dvh;
+
+    max-height: 100svh;
+    max-height: 100dvh;
+
     padding:
-      106px 16px 124px;
+      88px 16px 96px;
   }
 
   .hero__inner {
