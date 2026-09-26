@@ -1,36 +1,24 @@
 (() => {
-    const savedTheme =
-    localStorage.getItem(
-      'palak-theme'
-    );
-
-  document.documentElement.dataset.theme =
-    savedTheme === 'light'
-      ? 'light'
-      : 'dark';
-
-  document.documentElement.style.colorScheme =
-    savedTheme === 'light'
-      ? 'light'
-      : 'dark';
-  const cfg = window.INVITE_CONFIG || {};
-  const $ = (selector) => document.querySelector(selector);
   /*
-   * Apply the saved theme immediately so the page
-   * does not default to the phone/browser theme.
+   * Site theme is explicit and dark by default.
+   * The website should not inherit Android/Brave dark-mode behavior.
    */
   const savedTheme =
     localStorage.getItem('palak-theme');
 
-  document.documentElement.dataset.theme =
+  const initialTheme =
     savedTheme === 'light'
       ? 'light'
       : 'dark';
 
+  document.documentElement.dataset.theme =
+    initialTheme;
+
   document.documentElement.style.colorScheme =
-    savedTheme === 'light'
-      ? 'light'
-      : 'dark';
+    initialTheme;
+
+  const cfg = window.INVITE_CONFIG || {};
+  const $ = (selector) => document.querySelector(selector);
   const esc = (value) =>
     String(value ?? '').replace(/[&<>"']/g, (char) => ({
       '&': '&amp;',
@@ -47,8 +35,32 @@
   function applyTheme() {
     const root = document.documentElement;
 
+    /*
+     * These variables have deliberate light/dark values in styles.css.
+     * Do not write the old config palette inline because inline custom
+     * properties would override the theme selectors.
+     */
+    const themeControlledKeys = new Set([
+      'ivory',
+      'cream',
+      'warmWhite',
+      'blush',
+      'blushDeep',
+      'gold',
+      'goldDeep',
+      'sage',
+      'leaf',
+      'ink',
+      'inkSoft',
+      'hairline',
+      'shadow-soft',
+      'shadow-card'
+    ]);
+
     Object.entries(cfg.colors || {}).forEach(([key, value]) => {
-      root.style.setProperty(`--${key}`, value);
+      if (!themeControlledKeys.has(key)) {
+        root.style.setProperty(`--${key}`, value);
+      }
     });
 
     const background =
@@ -348,8 +360,8 @@
       .hero__begin {
         appearance: none;
         border: 1px solid rgba(194,161,92,.72);
-        background: rgba(255,253,248,.90);
-        color: var(--ink, #43403a);
+        background: var(--button-bg, rgba(255,253,248,.90));
+        color: var(--button-text, var(--ink, #43403a));
         min-height: 48px;
         padding: 12px 28px;
         margin-top: 30px;
@@ -366,12 +378,13 @@
         transition:
           transform .25s ease,
           box-shadow .25s ease,
-          background-color .25s ease;
+          background-color .25s ease,
+          color .25s ease;
       }
 
       .hero__begin:hover {
         transform: translateY(-2px);
-        background: rgba(255,253,248,.98);
+        background: var(--button-bg-hover, rgba(255,253,248,.98));
         box-shadow:
           0 16px 42px rgba(80,60,30,.16);
       }
@@ -401,15 +414,15 @@
         background:
           radial-gradient(
             circle at 15% 20%,
-            rgba(255,255,255,.07) 0 1px,
+            rgba(255,255,255,.025) 0 1px,
             transparent 1.5px
           ),
           radial-gradient(
             circle at 80% 70%,
-            rgba(255,255,255,.05) 0 1px,
+            rgba(255,255,255,.018) 0 1px,
             transparent 1.5px
           ),
-          #06162f;
+          var(--invite-section-bg, #1c1a17);
         background-size:
           18px 18px,
           23px 23px,
@@ -434,28 +447,28 @@
         background:
           radial-gradient(
             circle at 20% 15%,
-            rgba(194,161,92,.06) 0 1px,
+            rgba(194,161,92,.045) 0 1px,
             transparent 1.5px
           ),
           radial-gradient(
             circle at 80% 85%,
-            rgba(194,161,92,.05) 0 1px,
+            rgba(194,161,92,.035) 0 1px,
             transparent 1.5px
           ),
-          #faf4e7;
+          var(--invite-card-bg, #24211c);
 
         background-size:
           12px 12px,
           14px 14px,
           auto;
 
-        color: #0a2a5e;
+        color: var(--invite-card-text, #f2ede2);
         text-align: center;
         border: 2px solid #c2a15c;
         border-radius: 24px;
 
         box-shadow:
-          0 0 0 5px #faf4e7,
+          0 0 0 5px var(--invite-card-edge, #1c1a17),
           0 0 0 7px rgba(194,161,92,.92),
           0 24px 80px rgba(0,0,0,.34);
       }
@@ -474,7 +487,7 @@
         position: absolute;
         width: 120px;
         height: 120px;
-        color: #738c68;
+        color: var(--invite-green, #738c68);
         opacity: .94;
         pointer-events: none;
       }
@@ -519,7 +532,7 @@
         font-size:
           clamp(36px, 6vw, 52px);
         line-height: 1;
-        color: #ce4060;
+        color: var(--invite-red, #ce4060);
       }
 
       .invitation-card__ganesh {
@@ -528,7 +541,7 @@
           var(--serif, Georgia, serif);
         font-size:
           clamp(23px, 4vw, 34px);
-        color: #ce4060;
+        color: var(--invite-red, #ce4060);
         line-height: 1.2;
       }
 
@@ -542,7 +555,7 @@
         font-size:
           clamp(20px, 3.5vw, 29px);
         line-height: 1.35;
-        color: #092a5d;
+        color: var(--invite-card-text, #f2ede2);
       }
 
       .invitation-card__host span {
@@ -561,7 +574,7 @@
           clamp(15px, 2.2vw, 20px);
         line-height: 1.55;
         font-style: italic;
-        color: #ca3c5a;
+        color: var(--invite-red, #ca3c5a);
       }
 
       .invitation-card__grand {
@@ -573,7 +586,7 @@
         letter-spacing:
           .27em;
         font-size: 10px;
-        color: #0b2856;
+        color: var(--invite-card-muted, #e0d7c7);
       }
 
       .invitation-card__name {
@@ -585,7 +598,7 @@
           clamp(38px, 7vw, 64px);
         line-height: .98;
         font-weight: 500;
-        color: #082c66;
+        color: var(--invite-card-text, #f2ede2);
       }
 
       .invitation-card__relationship {
@@ -598,7 +611,7 @@
         font-size:
           clamp(14px, 2vw, 18px);
         font-style: italic;
-        color: #d04661;
+        color: var(--invite-red, #d04661);
       }
 
       .invitation-card__parents {
@@ -611,7 +624,7 @@
         font-size:
           clamp(17px, 2.8vw, 22px);
         line-height: 1.35;
-        color: #092c65;
+        color: var(--invite-card-text, #f2ede2);
       }
 
       .invitation-card__with {
@@ -623,7 +636,7 @@
         font-weight: 600;
         letter-spacing:
           .42em;
-        color: #d2a33e;
+        color: var(--invite-gold, #d2a33e);
       }
 
       .invitation-card__divider {
@@ -641,14 +654,14 @@
         content: "";
         height: 1px;
         flex: 1;
-        background: #d8ad50;
+        background: var(--invite-line, #d8ad50);
       }
 
       .invitation-card__divider-mark {
         width: 10px;
         height: 10px;
         border:
-          1px solid #d8ad50;
+          1px solid var(--invite-line, #d8ad50);
         transform: rotate(45deg);
         position: relative;
       }
@@ -657,7 +670,7 @@
         content: "";
         position: absolute;
         inset: 2px;
-        background: #d8ad50;
+        background: var(--invite-line, #d8ad50);
       }
 
       .invitation-card__details {
@@ -682,20 +695,20 @@
         font-size:
           clamp(15px, 2.3vw, 19px);
         line-height: 1.45;
-        color: #0a2c65;
+        color: var(--invite-card-text, #f2ede2);
       }
 
       .invitation-card__detail em {
         display: block;
         margin-top: 2px;
         font-size: .88em;
-        color: #c84460;
+        color: var(--invite-red, #c84460);
       }
 
       .invitation-card__detail-divider {
         width: 38px;
         height: 1px;
-        background: #d8ad50;
+        background: var(--invite-line, #d8ad50);
       }
 
       .invitation-card__monogram {
@@ -718,7 +731,7 @@
             42px 18px 42px;
           border-radius: 18px;
           box-shadow:
-            0 0 0 4px #faf4e7,
+            0 0 0 4px var(--invite-card-edge, #1c1a17),
             0 0 0 6px rgba(194,161,92,.92),
             0 18px 55px rgba(0,0,0,.30);
         }
@@ -766,10 +779,10 @@
         border-radius: 50%;
 
         background:
-          rgba(255,253,248,.94);
+          var(--music-bg, rgba(255,253,248,.94));
 
         color:
-          var(--ink, #43403a);
+          var(--music-text, var(--ink, #43403a));
 
         box-shadow:
           0 12px 30px rgba(45,35,20,.15);
@@ -781,7 +794,9 @@
 
         transition:
           transform .25s ease,
-          box-shadow .25s ease;
+          box-shadow .25s ease,
+          background-color .25s ease,
+          color .25s ease;
       }
 
       .music-control:hover {
@@ -2147,20 +2162,16 @@
     audio.volume = 0.65;
 
     /*
-     * Music state:
+     * Music state rules:
      *
-     * hasStarted:
-     *   Has the celebration button successfully started music?
-     *
-     * manuallyPaused:
-     *   Did the user explicitly pause music using the
-     *   corner music button?
-     *
-     * The Begin button NEVER resumes music after a manual pause.
+     * 1. The first successful Begin the Celebration click may start music.
+     * 2. Later celebration clicks never start/restart/resume music.
+     * 3. The corner button is the only control that can resume after a pause.
+     * 4. Scrolling never starts music automatically.
      */
-
-    let hasStarted = false;
+    let celebrationClickHandled = false;
     let manuallyPaused = false;
+    let playInProgress = false;
 
     const updateButton = () => {
       if (!button) {
@@ -2199,59 +2210,40 @@
       }
     };
 
-    /*
-     * Start music.
-     *
-     * This function is only called by the music button
-     * or the FIRST successful celebration-button click.
-     */
     const startMusic = async () => {
-      if (!audio) {
-        return false;
-      }
-
-      /*
-       * Already playing:
-       * Do absolutely nothing.
-       */
-      if (!audio.paused) {
+      if (!audio || !audio.paused) {
         updateButton();
         return true;
       }
 
+      if (playInProgress) {
+        return false;
+      }
+
+      playInProgress = true;
+
       try {
         await audio.play();
-
-        hasStarted = true;
         manuallyPaused = false;
-
         updateButton();
-
         return true;
       } catch {
         updateButton();
         return false;
+      } finally {
+        playInProgress = false;
       }
     };
 
-    /*
-     * Manual pause.
-     *
-     * Once this happens, the celebration button will NOT
-     * restart the music.
-     */
     const pauseMusic = () => {
-      audio.pause();
+      if (!audio.paused) {
+        audio.pause();
+      }
 
       manuallyPaused = true;
-
       updateButton();
     };
 
-    /*
-     * Corner button is the ONLY control that can resume
-     * music after a manual pause.
-     */
     const toggleMusic = async () => {
       if (audio.paused) {
         await startMusic();
@@ -2260,9 +2252,6 @@
       }
     };
 
-    /*
-     * Corner music button
-     */
     if (button) {
       button.addEventListener(
         'click',
@@ -2297,54 +2286,40 @@
       }
     );
 
-    /*
-     * BEGIN THE CELEBRATION
-     *
-     * First click:
-     *   - starts music
-     *   - scrolls to Our Story
-     *
-     * Later clicks:
-     *   - NEVER restart music
-     *   - NEVER resume manually paused music
-     *   - still scroll smoothly
-     */
     if (beginButton) {
       beginButton.addEventListener(
         'click',
-        async () => {
-
-          /*
-           * Only allow the celebration button to
-           * initiate music once.
-           */
-          if (
-            !hasStarted &&
-            !manuallyPaused
-          ) {
-            await startMusic();
-          }
-
+        () => {
+          /* Scroll immediately; do not wait for audio. */
           const target =
             document.querySelector('#story');
 
           if (target) {
             smoothScrollTo(target);
           }
+
+          /*
+           * Only the first celebration-button click gets a chance to
+           * start music. Mark it handled BEFORE calling play(), which
+           * also prevents rapid double-clicks from making two play calls.
+           * After a manual pause, this button cannot resume music.
+           */
+          if (
+            celebrationClickHandled ||
+            manuallyPaused
+          ) {
+            return;
+          }
+
+          celebrationClickHandled = true;
+          void startMusic();
         }
       );
     }
 
-    /*
-     * IMPORTANT:
-     *
-     * There is intentionally NO IntersectionObserver
-     * autoplay here.
-     *
-     * Scrolling to Our Story must never start the music.
-     */
     updateButton();
   }
+
   // ============================================================
   // GALLERY
   // ============================================================
@@ -2572,7 +2547,9 @@
   // ============================================================
 
   function smoothScrollTo(target) {
-    if (!target) return;
+    if (!target) {
+      return;
+    }
 
     const navOffset = 76;
     const targetY =
@@ -2580,44 +2557,17 @@
       window.pageYOffset -
       navOffset;
 
-    const startY = window.pageYOffset;
-    const distance = targetY - startY;
-    const duration = Math.min(
-      1000,
-      Math.max(550, Math.abs(distance) * 0.55)
-    );
-
-    let startTime = null;
-
-    const easeInOutCubic = (t) =>
-      t < 0.5
-        ? 4 * t * t * t
-        : 1 - Math.pow(-2 * t + 2, 3) / 2;
-
-    const animate = (currentTime) => {
-      if (!startTime) {
-        startTime = currentTime;
-      }
-
-      const progress = Math.min(
-        (currentTime - startTime) / duration,
-        1
-      );
-
-      const eased =
-        easeInOutCubic(progress);
-
+    try {
+      window.scrollTo({
+        top: Math.max(0, targetY),
+        behavior: 'smooth'
+      });
+    } catch {
       window.scrollTo(
         0,
-        startY + distance * eased
+        Math.max(0, targetY)
       );
-
-      if (progress < 1) {
-        requestAnimationFrame(animate);
-      }
-    };
-
-    requestAnimationFrame(animate);
+    }
   }
 
   function setupSmoothScrolling() {
@@ -2658,6 +2608,7 @@
         );
       });
   }
+
   function setupNavigation() {
     const nav =
       $('#siteNav');
@@ -2928,15 +2879,19 @@
           theme === 'dark';
 
         root.dataset.theme =
-          theme;
+          isDark ? 'dark' : 'light';
 
         root.style.colorScheme =
-          theme;
+          isDark ? 'dark' : 'light';
 
-        localStorage.setItem(
-          'palak-theme',
-          theme
-        );
+        try {
+          localStorage.setItem(
+            'palak-theme',
+            isDark ? 'dark' : 'light'
+          );
+        } catch {
+          /* Storage may be unavailable; the theme still changes in-page. */
+        }
 
         button.setAttribute(
           'aria-label',
