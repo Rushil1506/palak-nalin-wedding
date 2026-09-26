@@ -2589,7 +2589,97 @@
   // ============================================================
   // NAVIGATION SETUP
   // ============================================================
+  // ============================================================
+  // SMOOTH SCROLLING
+  // ============================================================
 
+  function smoothScrollTo(target) {
+    if (!target) return;
+
+    const navOffset = 76;
+    const targetY =
+      target.getBoundingClientRect().top +
+      window.pageYOffset -
+      navOffset;
+
+    const startY = window.pageYOffset;
+    const distance = targetY - startY;
+    const duration = Math.min(
+      1000,
+      Math.max(550, Math.abs(distance) * 0.55)
+    );
+
+    let startTime = null;
+
+    const easeInOutCubic = (t) =>
+      t < 0.5
+        ? 4 * t * t * t
+        : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
+    const animate = (currentTime) => {
+      if (!startTime) {
+        startTime = currentTime;
+      }
+
+      const progress = Math.min(
+        (currentTime - startTime) / duration,
+        1
+      );
+
+      const eased =
+        easeInOutCubic(progress);
+
+      window.scrollTo(
+        0,
+        startY + distance * eased
+      );
+
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      }
+    };
+
+    requestAnimationFrame(animate);
+  }
+
+  function setupSmoothScrolling() {
+    document
+      .querySelectorAll('a[href^="#"]')
+      .forEach((link) => {
+        link.addEventListener(
+          'click',
+          (event) => {
+            const href =
+              link.getAttribute('href');
+
+            if (
+              !href ||
+              href === '#' ||
+              href.length <= 1
+            ) {
+              return;
+            }
+
+            const target =
+              document.querySelector(href);
+
+            if (!target) {
+              return;
+            }
+
+            event.preventDefault();
+
+            smoothScrollTo(target);
+
+            history.replaceState(
+              null,
+              '',
+              href
+            );
+          }
+        );
+      });
+  }
   function setupNavigation() {
     const nav =
       $('#siteNav');
@@ -3023,6 +3113,7 @@ function setupThemeToggle() {
     setupGallery();
     setupRevealAnimations();
     setupNavigation();
+    setupSmoothScrolling();
     setupThemeToggle();
   }
 
