@@ -4,6 +4,7 @@
      ============================================================ */
 
   const $ = (selector) => document.querySelector(selector);
+  const cfg = window.INVITE_CONFIG || {};
 
   const esc = (value) =>
     String(value ?? '').replace(/[&<>"']/g, (char) => ({
@@ -14,11 +15,9 @@
       "'": '&#039;'
     }[char]));
 
-  const cfg = window.INVITE_CONFIG || {};
-
-  /* ------------------------------------------------------------
+  /* ============================================================
      THEME
-     ------------------------------------------------------------ */
+     ============================================================ */
 
   let savedTheme = null;
 
@@ -26,17 +25,13 @@
     savedTheme = localStorage.getItem('palak-theme');
   } catch {}
 
-  const initialTheme =
+  document.documentElement.dataset.theme =
     savedTheme === 'light' ? 'light' : 'dark';
 
-  document.documentElement.dataset.theme = initialTheme;
-  document.documentElement.style.colorScheme = initialTheme;
+  document.documentElement.style.colorScheme =
+    document.documentElement.dataset.theme;
 
   function applyTheme() {
-    /*
-     * Theme colours are controlled by CSS.
-     * Only non-theme config variables are copied inline.
-     */
     const root = document.documentElement;
 
     const excluded = new Set([
@@ -64,23 +59,19 @@
   }
 
   function setTheme(theme) {
-    const next =
-      theme === 'light' ? 'light' : 'dark';
+    const next = theme === 'light' ? 'light' : 'dark';
 
     document.documentElement.dataset.theme = next;
     document.documentElement.style.colorScheme = next;
 
     try {
-      localStorage.setItem(
-        'palak-theme',
-        next
-      );
+      localStorage.setItem('palak-theme', next);
     } catch {}
   }
 
-  /* ------------------------------------------------------------
+  /* ============================================================
      METADATA
-     ------------------------------------------------------------ */
+     ============================================================ */
 
   function applyMetadata() {
     const title =
@@ -89,29 +80,19 @@
     const description =
       `${cfg.dateLabel || ''} · ${cfg.city || ''} · ${cfg.venue || ''}`;
 
-    const baseUrl =
-      (
-        cfg.siteUrl ||
-        window.location.href
-      )
-        .replace(/#.*$/, '')
-        .replace(/\/$/, '');
+    const baseUrl = (
+      cfg.siteUrl || window.location.href
+    )
+      .replace(/#.*$/, '')
+      .replace(/\/$/, '');
 
     document.title = title;
 
-    const setMeta = (
-      selector,
-      attribute,
-      value
-    ) => {
-      const element =
-        document.querySelector(selector);
+    const setMeta = (selector, attribute, value) => {
+      const element = document.querySelector(selector);
 
       if (element) {
-        element.setAttribute(
-          attribute,
-          value
-        );
+        element.setAttribute(attribute, value);
       }
     };
 
@@ -153,19 +134,16 @@
     );
 
     const canonical =
-      document.querySelector(
-        'link[rel="canonical"]'
-      );
+      document.querySelector('link[rel="canonical"]');
 
     if (canonical) {
-      canonical.href =
-        `${baseUrl}/`;
+      canonical.href = `${baseUrl}/`;
     }
   }
 
-  /* ------------------------------------------------------------
+  /* ============================================================
      DECORATIVE SVG
-     ------------------------------------------------------------ */
+     ============================================================ */
 
   function svgDefsHTML() {
     return `
@@ -313,9 +291,9 @@
     </svg>
   `;
 
-  /* ------------------------------------------------------------
+  /* ============================================================
      NAVIGATION
-     ------------------------------------------------------------ */
+     ============================================================ */
 
   function navHTML() {
     return `
@@ -383,9 +361,9 @@
     `;
   }
 
-  /* ------------------------------------------------------------
+  /* ============================================================
      HERO
-     ------------------------------------------------------------ */
+     ============================================================ */
 
   function heroHTML() {
     return `
@@ -428,7 +406,7 @@
           >
             ${esc(
               cfg.heroEyebrow ||
-              'Lucknow · 03 December 2026'
+              'LUCKNOW · 03 DECEMBER 2026'
             )}
           </p>
 
@@ -436,9 +414,11 @@
             class="hero__names hero-anim"
             style="--d:.25s"
           >
+
             <span class="hero__name">
               ${esc(
-                cfg.bride || 'Palak'
+                cfg.bride ||
+                'Palak'
               )}
             </span>
 
@@ -451,9 +431,11 @@
 
             <span class="hero__name">
               ${esc(
-                cfg.groom || 'Nalin'
+                cfg.groom ||
+                'Nalin'
               )}
             </span>
+
           </h1>
 
           <p
@@ -499,7 +481,7 @@
           >
             ${esc(
               cfg.heroLine ||
-              'Awaiting to celebrate with you.'
+              'Awaiting to Celebrate With You.'
             )}
           </p>
 
@@ -529,14 +511,14 @@
             />
           </div>
 
-         <a
-  href="#story"
-  class="hero__begin hero-anim"
-  id="beginInvitation"
-  style="--d:1.02s"
->
-  Begin the Celebration
-</a>
+          <a
+            href="#story"
+            class="hero__begin hero-anim"
+            id="beginInvitation"
+            style="--d:1.02s"
+          >
+            Begin the Celebration
+          </a>
 
         </div>
 
@@ -560,9 +542,9 @@
     `;
   }
 
-  /* ------------------------------------------------------------
+  /* ============================================================
      STORY
-     ------------------------------------------------------------ */
+     ============================================================ */
 
   function storyHTML() {
     const images =
@@ -601,11 +583,15 @@
 
           <h2 class="section-title">
             ${esc(
-              cfg.bride || 'Palak'
+              cfg.bride ||
+              'Palak'
             )}
+
             <em>&amp;</em>
+
             ${esc(
-              cfg.groom || 'Nalin'
+              cfg.groom ||
+              'Nalin'
             )}
           </h2>
 
@@ -686,6 +672,7 @@
                         `
                         : ''
                     }
+
                   </div>
                 `
                 : ''
@@ -773,6 +760,7 @@
                   </button>
 
                   <div class="poly-dots">
+
                     ${images
                       .map(
                         (_, index) => `
@@ -791,6 +779,7 @@
                         `
                       )
                       .join('')}
+
                   </div>
                 `
                 : ''
@@ -804,9 +793,9 @@
     `;
   }
 
-  /* ------------------------------------------------------------
+  /* ============================================================
      INVITATION CARD
-     ------------------------------------------------------------ */
+     ============================================================ */
 
   function invitationCardHTML() {
     const family =
@@ -869,7 +858,9 @@
                 .map(
                   (name) => `
                     <span>
-                      ${esc(name)}
+                      ${esc(
+                        name
+                      )}
                     </span>
                   `
                 )
@@ -904,8 +895,11 @@
                 brideParents[0] ||
                 ''
               )}
+
               and
+
               <br>
+
               ${esc(
                 brideParents[1] ||
                 ''
@@ -933,8 +927,11 @@
                 groomParents[0] ||
                 ''
               )}
+
               and
+
               <br>
+
               ${esc(
                 groomParents[1] ||
                 ''
@@ -951,6 +948,7 @@
 
               <div class="invitation-card__detail">
                 Thursday, 3rd December 2026
+
                 <em>
                   7:30 PM ONWARDS
                 </em>
@@ -963,6 +961,7 @@
 
               <div class="invitation-card__detail">
                 The Hilton
+
                 <em>
                   Lucknow
                 </em>
@@ -987,9 +986,9 @@
     `;
   }
 
-  /* ------------------------------------------------------------
+  /* ============================================================
      TIMELINE
-     ------------------------------------------------------------ */
+     ============================================================ */
 
   function timelineHTML() {
     const events =
@@ -1024,7 +1023,9 @@
           ${events
             .map(
               (event, index) => `
-                <li class="timeline__item reveal">
+                <li
+                  class="timeline__item reveal"
+                >
 
                   <div
                     class="timeline__marker"
@@ -1079,9 +1080,9 @@
     `;
   }
 
-  /* ------------------------------------------------------------
+  /* ============================================================
      EVENT CARDS
-     ------------------------------------------------------------ */
+     ============================================================ */
 
   function eventCardHTML(event) {
     return `
@@ -1131,7 +1132,9 @@
               event.day ||
               ''
             )}
+
             ·
+
             ${esc(
               event.date ||
               ''
@@ -1232,9 +1235,9 @@
     `;
   }
 
-  /* ------------------------------------------------------------
+  /* ============================================================
      COUNTDOWN
-     ------------------------------------------------------------ */
+     ============================================================ */
 
   function countdownHTML() {
     return `
@@ -1276,6 +1279,7 @@
             <strong data-unit="days">
               --
             </strong>
+
             <small>
               Days
             </small>
@@ -1285,6 +1289,7 @@
             <strong data-unit="hours">
               --
             </strong>
+
             <small>
               Hours
             </small>
@@ -1294,6 +1299,7 @@
             <strong data-unit="minutes">
               --
             </strong>
+
             <small>
               Minutes
             </small>
@@ -1303,6 +1309,7 @@
             <strong data-unit="seconds">
               --
             </strong>
+
             <small>
               Seconds
             </small>
@@ -1323,7 +1330,9 @@
             cfg.dateLabel ||
             '03 DECEMBER 2026'
           )}
+
           ·
+
           ${esc(
             cfg.venue ||
             'The Hilton Lucknow'
@@ -1334,9 +1343,9 @@
     `;
   }
 
-  /* ------------------------------------------------------------
+  /* ============================================================
      VENUE
-     ------------------------------------------------------------ */
+     ============================================================ */
 
   function venueHTML() {
     const venue =
@@ -1384,11 +1393,15 @@
           <div class="venue__info reveal">
 
             <h3 class="venue__name">
-              ${esc(venue)}
+              ${esc(
+                venue
+              )}
             </h3>
 
             <p class="venue__address">
-              ${esc(address)}
+              ${esc(
+                address
+              )}
             </p>
 
             <p class="venue__desc">
@@ -1443,9 +1456,9 @@
     `;
   }
 
-  /* ------------------------------------------------------------
+  /* ============================================================
      FOOTER
-     ------------------------------------------------------------ */
+     ============================================================ */
 
   function footerHTML() {
     return `
@@ -1467,7 +1480,9 @@
             cfg.bride ||
             'Palak'
           )}
+
           <em>&amp;</em>
+
           ${esc(
             cfg.groom ||
             'Nalin'
@@ -1535,9 +1550,9 @@
     `;
   }
 
-  /* ------------------------------------------------------------
+  /* ============================================================
      MUSIC + FLOATING COUNTDOWN HTML
-     ------------------------------------------------------------ */
+     ============================================================ */
 
   function musicHTML() {
     const musicSrc =
@@ -1586,24 +1601,31 @@
           class="floating-countdown__full"
           aria-hidden="true"
         >
-          <span class="floating-countdown__intro">
+          <span
+            class="floating-countdown__intro"
+          >
             WEDDING IN
           </span>
 
-          <span class="floating-countdown__values">
+          <span
+            class="floating-countdown__values"
+          >
             <strong id="floatingDays">
               --
             </strong>
+
             <small>D</small>
 
             <strong id="floatingHours">
               --
             </strong>
+
             <small>H</small>
 
             <strong id="floatingMinutes">
               --
             </strong>
+
             <small>M</small>
           </span>
         </span>
@@ -1611,16 +1633,18 @@
 
       <audio
         id="audio"
-        src="${esc(musicSrc)}"
+        src="${esc(
+          musicSrc
+        )}"
         loop
         preload="auto"
       ></audio>
     `;
   }
 
-  /* ------------------------------------------------------------
+  /* ============================================================
      MUSIC SETUP
-     ------------------------------------------------------------ */
+     ============================================================ */
 
   function setupMusic() {
     const audio =
@@ -1642,67 +1666,74 @@
       return;
     }
 
-    audio.volume = 0.65;
+    audio.volume =
+      0.65;
 
     /*
-     * Music rules:
+     * Music state rules:
      *
-     * 1. The FIRST Begin click gets one chance to start music.
-     * 2. Later Begin clicks never start or resume music.
-     * 3. The corner music button is the only manual resume control.
-     * 4. Scrolling never starts music automatically.
+     * - Only the FIRST Begin click can initiate music.
+     * - Later Begin clicks cannot start/restart/resume music.
+     * - The corner button can always manually play/pause music.
+     * - Scrolling never starts music.
      */
 
-    let celebrationClickHandled = false;
-    let manuallyPaused = false;
-    let playInProgress = false;
+    let celebrationClickHandled =
+      false;
 
-    const updateButton = () => {
-      if (!button) {
-        return;
-      }
+    let manuallyPaused =
+      false;
 
-      const playing =
-        !audio.paused;
+    let playInProgress =
+      false;
 
-      button.classList.toggle(
-        'is-playing',
-        playing
-      );
+    const updateButton =
+      () => {
+        if (!button) {
+          return;
+        }
 
-      button.setAttribute(
-        'aria-pressed',
-        String(playing)
-      );
+        const playing =
+          !audio.paused;
 
-      button.setAttribute(
-        'aria-label',
-        playing
-          ? 'Pause music'
-          : 'Play music'
-      );
-
-      button.setAttribute(
-        'title',
-        playing
-          ? 'Pause music'
-          : 'Play music'
-      );
-
-      if (icon) {
-        icon.textContent =
+        button.classList.toggle(
+          'is-playing',
           playing
-            ? 'Ⅱ'
-            : '♪';
-      }
+        );
 
-      if (label) {
-        label.textContent =
+        button.setAttribute(
+          'aria-pressed',
+          String(playing)
+        );
+
+        button.setAttribute(
+          'aria-label',
           playing
-            ? 'Pause Music'
-            : 'Play Music';
-      }
-    };
+            ? 'Pause music'
+            : 'Play music'
+        );
+
+        button.setAttribute(
+          'title',
+          playing
+            ? 'Pause music'
+            : 'Play music'
+        );
+
+        if (icon) {
+          icon.textContent =
+            playing
+              ? 'Ⅱ'
+              : '♪';
+        }
+
+        if (label) {
+          label.textContent =
+            playing
+              ? 'Pause Music'
+              : 'Play Music';
+        }
+      };
 
     const startMusic =
       async () => {
@@ -1719,7 +1750,8 @@
           return false;
         }
 
-        playInProgress = true;
+        playInProgress =
+          true;
 
         try {
           await audio.play();
@@ -1729,21 +1761,29 @@
           updateButton();
           return false;
         } finally {
-          playInProgress = false;
+          playInProgress =
+            false;
         }
       };
 
     const pauseMusic =
       () => {
         audio.pause();
-        manuallyPaused = true;
+        manuallyPaused =
+          true;
         updateButton();
       };
 
     const toggleMusic =
       async () => {
         if (audio.paused) {
-          manuallyPaused = false;
+          /*
+           * Manual resume is explicitly allowed from
+           * the corner music button.
+           */
+          manuallyPaused =
+            false;
+
           await startMusic();
         } else {
           pauseMusic();
@@ -1780,21 +1820,17 @@
       }
     );
 
+    /*
+     * The Begin link is intentionally NOT scrolled here.
+     *
+     * Its href="#story" is handled by the single global
+     * smooth-scroll system below.
+     *
+     * This listener does ONLY the first-click music behavior.
+     */
     beginButton?.addEventListener(
       'click',
       () => {
-        const target =
-          document.querySelector(
-            '#story'
-          );
-
-        if (target) {
-          smoothScrollTo(target);
-        }
-
-        /*
-         * The celebration button can only initiate music once.
-         */
         if (
           celebrationClickHandled ||
           manuallyPaused
@@ -1802,7 +1838,8 @@
           return;
         }
 
-        celebrationClickHandled = true;
+        celebrationClickHandled =
+          true;
 
         void startMusic();
       }
@@ -1811,9 +1848,9 @@
     updateButton();
   }
 
-  /* ------------------------------------------------------------
+  /* ============================================================
      GALLERY
-     ------------------------------------------------------------ */
+     ============================================================ */
 
   function setupGallery() {
     const images =
@@ -1841,7 +1878,8 @@
     const gallery =
       $('#polaroid');
 
-    let current = 0;
+    let current =
+      0;
 
     const show =
       (index) => {
@@ -1866,16 +1904,20 @@
 
     previous?.addEventListener(
       'click',
-      () => show(
-        current - 1
-      )
+      () => {
+        show(
+          current - 1
+        );
+      }
     );
 
     next?.addEventListener(
       'click',
-      () => show(
-        current + 1
-      )
+      () => {
+        show(
+          current + 1
+        );
+      }
     );
 
     dots.forEach(
@@ -1897,7 +1939,8 @@
       return;
     }
 
-    let startX = null;
+    let startX =
+      null;
 
     gallery.addEventListener(
       'touchstart',
@@ -1906,13 +1949,18 @@
           event.touches[0]?.clientX ??
           null;
       },
-      { passive: true }
+      {
+        passive: true
+      }
     );
 
     gallery.addEventListener(
       'touchend',
       (event) => {
-        if (startX === null) {
+        if (
+          startX ===
+          null
+        ) {
           return;
         }
 
@@ -1921,9 +1969,13 @@
           startX;
 
         const delta =
-          endX - startX;
+          endX -
+          startX;
 
-        if (Math.abs(delta) > 40) {
+        if (
+          Math.abs(delta) >
+          40
+        ) {
           show(
             current +
             (
@@ -1934,15 +1986,18 @@
           );
         }
 
-        startX = null;
+        startX =
+          null;
       },
-      { passive: true }
+      {
+        passive: true
+      }
     );
   }
 
-  /* ------------------------------------------------------------
+  /* ============================================================
      REVEAL ANIMATIONS
-     ------------------------------------------------------------ */
+     ============================================================ */
 
   function setupRevealAnimations() {
     const elements =
@@ -1950,23 +2005,13 @@
         '.reveal'
       );
 
-    if (
+    const reduced =
       window.matchMedia(
         '(prefers-reduced-motion: reduce)'
-      ).matches
-    ) {
-      elements.forEach(
-        (element) => {
-          element.classList.add(
-            'visible'
-          );
-        }
-      );
-
-      return;
-    }
+      ).matches;
 
     if (
+      reduced ||
       !(
         'IntersectionObserver'
         in window
@@ -2018,156 +2063,204 @@
     );
   }
 
-  /* ------------------------------------------------------------
-     TRUE SMOOTH SCROLL ENGINE
-     ------------------------------------------------------------ */
+  /* ============================================================
+     SMOOTH SCROLL ENGINE
+     ============================================================ */
 
-let smoothScrollFrame = null;
-let smoothScrollToken = 0;
+  let smoothScrollFrame =
+    null;
 
-function smoothScrollTo(target) {
-  if (!target) {
-    return;
-  }
-
-  if (smoothScrollFrame !== null) {
-    cancelAnimationFrame(
-      smoothScrollFrame
-    );
-
-    smoothScrollFrame = null;
-  }
-
-  smoothScrollToken += 1;
-
-  const token =
-    smoothScrollToken;
-
-  const startY =
-    window.scrollY ||
-    window.pageYOffset ||
+  let smoothScrollToken =
     0;
 
-  const maxY =
-    Math.max(
-      0,
-      document.documentElement.scrollHeight -
-      window.innerHeight
-    );
-
-  /*
-   * Put the requested section exactly at the top
-   * of the viewport.
-   *
-   * No navigation-height subtraction.
-   */
-  const targetY =
-    Math.min(
-      maxY,
-      Math.max(
-        0,
-        target.getBoundingClientRect().top +
-        startY
-      )
-    );
-
-  const distance =
-    targetY - startY;
-
-  if (
-    Math.abs(distance) < 1
+  function smoothScrollTo(
+    target
   ) {
-    window.scrollTo(
-      0,
-      targetY
-    );
+    if (!target) {
+      return;
+    }
 
-    return;
-  }
-
-  const duration =
-    Math.min(
-      1200,
-      Math.max(
-        700,
-        Math.abs(distance) * 0.55
-      )
-    );
-
-  const startTime =
-    performance.now();
-
-  const easeInOutCubic =
-    (t) =>
-      t < 0.5
-        ? 4 * t * t * t
-        : 1 -
-          Math.pow(
-            -2 * t + 2,
-            3
-          ) / 2;
-
-  const animate =
-    (now) => {
-      if (
-        token !==
-        smoothScrollToken
-      ) {
-        return;
-      }
-
-      const progress =
-        Math.min(
-          1,
-          (now - startTime) /
-          duration
-        );
-
-      const eased =
-        easeInOutCubic(
-          progress
-        );
-
-      const y =
-        startY +
-        distance * eased;
-
-      /*
-       * Numeric scrollTo is intentional.
-       * It bypasses native smooth-scrolling settings.
-       */
-      window.scrollTo(
-        0,
-        y
+    if (
+      smoothScrollFrame !==
+      null
+    ) {
+      cancelAnimationFrame(
+        smoothScrollFrame
       );
 
-      if (
-        progress < 1
-      ) {
-        smoothScrollFrame =
-          requestAnimationFrame(
-            animate
-          );
-      } else {
-        smoothScrollFrame =
-          null;
+      smoothScrollFrame =
+        null;
+    }
 
+    smoothScrollToken +=
+      1;
+
+    const token =
+      smoothScrollToken;
+
+    const startY =
+      window.scrollY ||
+      window.pageYOffset ||
+      0;
+
+    /*
+     * Measure the section immediately before starting.
+     */
+    const rect =
+      target.getBoundingClientRect();
+
+    const targetY =
+      Math.max(
+        0,
+        rect.top +
+        startY
+      );
+
+    const maxY =
+      Math.max(
+        0,
+        document.documentElement.scrollHeight -
+        window.innerHeight
+      );
+
+    const finalY =
+      Math.min(
+        targetY,
+        maxY
+      );
+
+    const distance =
+      finalY -
+      startY;
+
+    if (
+      Math.abs(distance) <
+      1
+    ) {
+      window.scrollTo(
+        0,
+        finalY
+      );
+
+      return;
+    }
+
+    /*
+     * Smooth duration scales with distance but is capped.
+     */
+    const duration =
+      Math.min(
+        1200,
+        Math.max(
+          650,
+          Math.abs(distance) *
+          0.55
+        )
+      );
+
+    const startTime =
+      performance.now();
+
+    const easeInOutCubic =
+      (t) =>
+        t < 0.5
+          ? 4 * t * t * t
+          : 1 -
+            Math.pow(
+              -2 * t + 2,
+              3
+            ) / 2;
+
+    const animate =
+      (now) => {
+        if (
+          token !==
+          smoothScrollToken
+        ) {
+          return;
+        }
+
+        const progress =
+          Math.min(
+            1,
+            (
+              now -
+              startTime
+            ) /
+            duration
+          );
+
+        const eased =
+          easeInOutCubic(
+            progress
+          );
+
+        const y =
+          startY +
+          distance *
+          eased;
+
+        /*
+         * Numeric scrollTo bypasses browser native
+         * smooth-scroll and reduced-motion settings.
+         */
         window.scrollTo(
           0,
-          targetY
+          y
         );
-      }
-    };
 
-  smoothScrollFrame =
-    requestAnimationFrame(
-      animate
+        if (
+          progress <
+          1
+        ) {
+          smoothScrollFrame =
+            requestAnimationFrame(
+              animate
+            );
+        } else {
+          smoothScrollFrame =
+            null;
+
+          window.scrollTo(
+            0,
+            finalY
+          );
+        }
+      };
+
+    smoothScrollFrame =
+      requestAnimationFrame(
+        animate
+      );
+  }
+
+  function closeMobileMenu() {
+    document.body.classList.remove(
+      'menu-open'
     );
-}
+
+    const button =
+      $('#menuBtn');
+
+    if (button) {
+      button.setAttribute(
+        'aria-expanded',
+        'false'
+      );
+
+      button.setAttribute(
+        'aria-label',
+        'Open menu'
+      );
+    }
+  }
 
   function setupSmoothScrolling() {
     /*
-     * Capture phase stops native anchor jumping before it can occur.
+     * ONE delegated capture-phase listener owns all internal
+     * anchor scrolling. This prevents accidental native jumps
+     * and prevents multiple scripts from fighting over the same
+     * navigation click.
      */
     document.addEventListener(
       'click',
@@ -2177,8 +2270,12 @@ function smoothScrollTo(target) {
             ? event.target
             : event.target?.parentElement;
 
+        if (!source) {
+          return;
+        }
+
         const link =
-          source?.closest(
+          source.closest(
             'a[href^="#"]'
           );
 
@@ -2193,12 +2290,14 @@ function smoothScrollTo(target) {
 
         if (
           !href ||
-          href === '#'
+          href === '#' ||
+          href.length <= 1
         ) {
           return;
         }
 
-        let target = null;
+        let target =
+          null;
 
         try {
           target =
@@ -2213,29 +2312,43 @@ function smoothScrollTo(target) {
           return;
         }
 
+        /*
+         * Stop the native instant jump.
+         */
         event.preventDefault();
 
+        /*
+         * Close mobile navigation before scrolling.
+         */
         closeMobileMenu();
 
+        /*
+         * Start exactly one animation.
+         */
         smoothScrollTo(
           target
         );
 
+        /*
+         * Change the URL without causing a second scroll.
+         */
         try {
           history.replaceState(
             null,
             '',
             href
           );
-        } catch {}
+        } catch {
+          /* Ignore history errors. */
+        }
       },
       true
     );
   }
 
-  /* ------------------------------------------------------------
-     NAVIGATION
-     ------------------------------------------------------------ */
+  /* ============================================================
+     NAVIGATION SETUP
+     ============================================================ */
 
   function setupNavigation() {
     const nav =
@@ -2243,9 +2356,6 @@ function smoothScrollTo(target) {
 
     const menuButton =
       $('#menuBtn');
-
-    const menu =
-      $('#mobileMenu');
 
     if (!nav) {
       return;
@@ -2255,7 +2365,8 @@ function smoothScrollTo(target) {
       () => {
         nav.classList.toggle(
           'nav--scrolled',
-          window.scrollY > 24
+          window.scrollY >
+          24
         );
       };
 
@@ -2295,7 +2406,8 @@ function smoothScrollTo(target) {
       'keydown',
       (event) => {
         if (
-          event.key === 'Escape' &&
+          event.key ===
+            'Escape' &&
           document.body.classList.contains(
             'menu-open'
           )
@@ -2305,47 +2417,49 @@ function smoothScrollTo(target) {
         }
       }
     );
-
-    menu?.addEventListener(
-      'click',
-      (event) => {
-        if (
-          event.target instanceof Element &&
-          event.target.closest('a')
-        ) {
-          closeMobileMenu();
-        }
-      }
-    );
   }
 
-  /* ------------------------------------------------------------
-     MAIN COUNTDOWN
-     ------------------------------------------------------------ */
+  /* ============================================================
+     WEDDING DATE
+     ============================================================ */
 
   function weddingTimestamp() {
     const value =
       cfg.weddingDateTime ||
       `${cfg.dateISO || '2026-12-03'}T20:00:00+05:30`;
 
-    return new Date(
-      value
-    ).getTime();
+    const timestamp =
+      new Date(
+        value
+      ).getTime();
+
+    if (
+      Number.isNaN(
+        timestamp
+      )
+    ) {
+      return new Date(
+        '2026-12-03T20:00:00+05:30'
+      ).getTime();
+    }
+
+    return timestamp;
   }
 
-  function setupCountdown() {
-    const target =
-      weddingTimestamp();
+  /* ============================================================
+     MAIN COUNTDOWN
+     ============================================================ */
 
+  function setupCountdown() {
     const box =
       $('#countdownBox');
 
-    if (
-      !box ||
-      Number.isNaN(target)
-    ) {
+    if (!box) {
       return;
     }
+
+    const target =
+      weddingTimestamp();
 
     const cells = {
       days:
@@ -2372,6 +2486,9 @@ function smoothScrollTo(target) {
     const done =
       $('#countdownDone');
 
+    let timer =
+      null;
+
     const tick =
       () => {
         const difference =
@@ -2379,7 +2496,8 @@ function smoothScrollTo(target) {
           Date.now();
 
         if (
-          difference <= 0
+          difference <=
+          0
         ) {
           Object.values(
             cells
@@ -2395,6 +2513,12 @@ function smoothScrollTo(target) {
           if (done) {
             done.hidden =
               false;
+          }
+
+          if (timer) {
+            clearInterval(
+              timer
+            );
           }
 
           return;
@@ -2447,7 +2571,7 @@ function smoothScrollTo(target) {
 
     tick();
 
-    const timer =
+    timer =
       window.setInterval(
         tick,
         1000
@@ -2456,9 +2580,11 @@ function smoothScrollTo(target) {
     window.addEventListener(
       'pagehide',
       () => {
-        window.clearInterval(
-          timer
-        );
+        if (timer) {
+          clearInterval(
+            timer
+          );
+        }
       },
       {
         once: true
@@ -2466,9 +2592,9 @@ function smoothScrollTo(target) {
     );
   }
 
-  /* ------------------------------------------------------------
+  /* ============================================================
      FLOATING COUNTDOWN
-     ------------------------------------------------------------ */
+     ============================================================ */
 
   function setupFloatingCountdown() {
     const widget =
@@ -2495,12 +2621,6 @@ function smoothScrollTo(target) {
 
     const target =
       weddingTimestamp();
-
-    if (
-      Number.isNaN(target)
-    ) {
-      return;
-    }
 
     const update =
       () => {
@@ -2590,7 +2710,7 @@ function smoothScrollTo(target) {
     window.addEventListener(
       'pagehide',
       () => {
-        window.clearInterval(
+        clearInterval(
           intervalId
         );
       },
@@ -2600,9 +2720,9 @@ function smoothScrollTo(target) {
     );
   }
 
-  /* ------------------------------------------------------------
+  /* ============================================================
      THEME TOGGLE
-     ------------------------------------------------------------ */
+     ============================================================ */
 
   function setupThemeToggle() {
     const button =
@@ -2618,68 +2738,64 @@ function smoothScrollTo(target) {
     const label =
       $('#themeToggleLabel');
 
-    const current =
-      document.documentElement
-        .dataset.theme === 'light'
-        ? 'light'
-        : 'dark';
-
-    const syncUi =
+    const sync =
       () => {
-        const isDark =
+        const dark =
           document.documentElement
             .dataset.theme !==
           'light';
 
         button.setAttribute(
           'aria-label',
-          isDark
+          dark
             ? 'Switch to light mode'
             : 'Switch to dark mode'
         );
 
         button.setAttribute(
           'aria-pressed',
-          String(!isDark)
+          String(!dark)
         );
 
         if (icon) {
           icon.textContent =
-            isDark
+            dark
               ? '☼'
               : '☾';
         }
 
         if (label) {
           label.textContent =
-            isDark
+            dark
               ? 'Light Mode'
               : 'Dark Mode';
         }
       };
 
-    setTheme(current);
-
-    syncUi();
+    sync();
 
     button.addEventListener(
       'click',
       () => {
         const next =
           document.documentElement
-            .dataset.theme === 'dark'
+            .dataset.theme ===
+          'dark'
             ? 'light'
             : 'dark';
 
-        setTheme(next);
-        syncUi();
+        setTheme(
+          next
+        );
+
+        sync();
       }
     );
   }
 
-  /* ------------------------------------------------------------
+  /* ============================================================
      RENDER
-     ------------------------------------------------------------ */
+     ============================================================ */
 
   function render() {
     applyTheme();
@@ -2770,9 +2886,9 @@ function smoothScrollTo(target) {
     setupThemeToggle();
   }
 
-  /* ------------------------------------------------------------
+  /* ============================================================
      START
-     ------------------------------------------------------------ */
+     ============================================================ */
 
   render();
 })();
