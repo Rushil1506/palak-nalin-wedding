@@ -2819,7 +2819,105 @@
         1000
       );
   }
+// ============================================================
+// LIGHT / DARK MODE
+// ============================================================
 
+function setupThemeToggle() {
+  const root =
+    document.documentElement;
+
+  const button =
+    document.querySelector(
+      '#themeToggle'
+    );
+
+  const icon =
+    document.querySelector(
+      '#themeToggleIcon'
+    );
+
+  const label =
+    document.querySelector(
+      '#themeToggleLabel'
+    );
+
+  if (!button) {
+    return;
+  }
+
+  const savedTheme =
+    localStorage.getItem(
+      'palak-theme'
+    );
+
+  // DARK IS ALWAYS THE DEFAULT.
+  const initialTheme =
+    savedTheme === 'light'
+      ? 'light'
+      : 'dark';
+
+  const applyTheme =
+    (theme) => {
+      root.dataset.theme =
+        theme;
+
+      root.style.colorScheme =
+        theme;
+
+      localStorage.setItem(
+        'palak-theme',
+        theme
+      );
+
+      const isDark =
+        theme === 'dark';
+
+      button.setAttribute(
+        'aria-label',
+        isDark
+          ? 'Switch to light mode'
+          : 'Switch to dark mode'
+      );
+
+      button.setAttribute(
+        'aria-pressed',
+        String(!isDark)
+      );
+
+      if (icon) {
+        icon.textContent =
+          isDark
+            ? '☼'
+            : '☾';
+      }
+
+      if (label) {
+        label.textContent =
+          isDark
+            ? 'Light Mode'
+            : 'Dark Mode';
+      }
+    };
+
+  applyTheme(
+    initialTheme
+  );
+
+  button.addEventListener(
+    'click',
+    () => {
+      const nextTheme =
+        root.dataset.theme === 'dark'
+          ? 'light'
+          : 'dark';
+
+      applyTheme(
+        nextTheme
+      );
+    }
+  );
+}
   // ============================================================
   // RENDER
   // ============================================================
@@ -2911,6 +3009,7 @@
     setupGallery();
     setupRevealAnimations();
     setupNavigation();
+    setupThemeToggle();
   }
 
   // ============================================================
