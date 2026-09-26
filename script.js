@@ -131,64 +131,55 @@
 
   // ---------- Sections ----------
 
-  function navHTML() {
-    return `<header class="nav" id="siteNav">
-      <a
-        class="nav__brand"
-        href="#home"
-        data-testid="nav-brand"
-        aria-label="${esc(cfg.bride)} and ${esc(cfg.groom)} — back to top"
-      >
-        <span class="nav__mono">${esc(cfg.logoMark)}</span>
-      </a>
-
-      <nav class="nav__links" aria-label="Main navigation">
-        <a href="#home" data-testid="nav-home">Home</a>
-        <a href="#story" data-testid="nav-story">Our Story</a>
-        <a href="#events" data-testid="nav-events">Events</a>
-        <a href="#venue" data-testid="nav-venue">Venue</a>
-        <a
-          href="#blessings"
-          class="nav__cta"
-          data-testid="nav-blessings"
-        >
-          Blessings
-        </a>
-      </nav>
-
-      <button
-        class="nav__burger"
-        id="menuBtn"
-        data-testid="mobile-menu-button"
-        aria-label="Open menu"
-        aria-expanded="false"
-        aria-controls="mobileMenu"
-      >
-        <span></span>
-        <span></span>
-        <span></span>
-      </button>
-    </header>
-
-    <div
-      class="mobile-menu"
-      id="mobileMenu"
-      data-testid="mobile-menu"
+ function navHTML() {
+  return `<header class="nav" id="siteNav">
+    <a
+      class="nav__brand"
+      href="#home"
+      data-testid="nav-brand"
+      aria-label="${esc(cfg.bride)} and ${esc(cfg.groom)} — back to top"
     >
-      <nav aria-label="Mobile navigation">
-        <a href="#home" data-testid="mobile-nav-home">Home</a>
-        <a href="#story" data-testid="mobile-nav-story">Our Story</a>
-        <a href="#events" data-testid="mobile-nav-events">Events</a>
-        <a href="#venue" data-testid="mobile-nav-venue">Venue</a>
-        <a
-          href="#blessings"
-          data-testid="mobile-nav-blessings"
-        >
-          Blessings
-        </a>
-      </nav>
-    </div>`;
-  }
+      <img
+        class="nav__logo"
+        src="assets/favicon.png"
+        alt="Palak and Nalin"
+      >
+    </a>
+
+    <nav class="nav__links" aria-label="Main navigation">
+      <a href="#home" data-testid="nav-home">Home</a>
+      <a href="#story" data-testid="nav-story">Our Story</a>
+      <a href="#events" data-testid="nav-events">Events</a>
+      <a href="#venue" data-testid="nav-venue">Venue</a>
+    </nav>
+
+    <button
+      class="nav__burger"
+      id="menuBtn"
+      data-testid="mobile-menu-button"
+      aria-label="Open menu"
+      aria-expanded="false"
+      aria-controls="mobileMenu"
+    >
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </header>
+
+  <div
+    class="mobile-menu"
+    id="mobileMenu"
+    data-testid="mobile-menu"
+  >
+    <nav aria-label="Mobile navigation">
+      <a href="#home" data-testid="mobile-nav-home">Home</a>
+      <a href="#story" data-testid="mobile-nav-story">Our Story</a>
+      <a href="#events" data-testid="mobile-nav-events">Events</a>
+      <a href="#venue" data-testid="mobile-nav-venue">Venue</a>
+    </nav>
+  </div>`;
+}
 
   function heroHTML() {
     return `<section class="hero" id="home">
@@ -651,63 +642,7 @@
 
   // ---------- Blessings ----------
 
-  function blessingsHTML() {
-    const families = [
-      'Mrs. Veena & Mr. Ramesh Jindal',
-      'Mrs. Neelam & Mr. Surinder Jindal',
-      'Rushil Jindal',
-      'Mrs. Renu & Mr. Naresh Kansal',
-      'Mrs. Swati & Mr. Aseem Garg',
-      'Anjali Goyal',
-      'Mrs. Deepti & Mr. Deepak Jindal',
-      'Mrs. Smriti & Mr. Gaurav Jindal'
-    ];
 
-    return `<section
-      class="section rsvp blessings"
-      id="blessings"
-    >
-      ${sprig('section-sprig rsvp__sprig blessings__sprig')}
-
-      <div class="rsvp__card blessings__card reveal">
-        <p class="section-eyebrow">
-          With Best Compliments From
-        </p>
-
-        <h2 class="section-title">
-          Blessings
-        </h2>
-
-        <svg
-          class="divider"
-          aria-hidden="true"
-          focusable="false"
-        >
-          <use href="#orn-divider"></use>
-        </svg>
-
-        <p class="rsvp__note blessings__message">
-          Awaiting to Celebrate With You
-        </p>
-
-        <div class="blessings__families">
-          ${families.map(name => `
-            <p>${esc(name)}</p>
-          `).join('')}
-        </div>
-
-        <div class="blessings__cousins-wrap">
-          <p class="blessings__cousins-label">
-            Cousins
-          </p>
-
-          <p class="blessings__cousins">
-            Arya · Pranvi · Rhythm · Pavni Jindal · Amaira Goel
-          </p>
-        </div>
-      </div>
-    </section>`;
-  }
 
   // ---------- Render ----------
 
@@ -729,7 +664,7 @@
         ${show('events') ? eventsHTML() : ''}
         ${show('countdown') ? countdownHTML() : ''}
         ${show('venue') ? venueHTML() : ''}
-        ${show('rsvp') ? blessingsHTML() : ''}
+        
       </main>
 
       ${show('footer') ? footerHTML() : ''}
