@@ -1853,3 +1853,285 @@ html[data-theme="light"] {
   scroll-behavior: auto !important;
   scroll-padding-top: 0 !important;
 }
+
+
+/* ============================================================
+   MIDNIGHT AWADH VISUAL WORLD
+   Generated section artwork + NALAKS branding
+   ============================================================ */
+
+html[data-theme="dark"] body {
+  background: #050914 !important;
+  color: #f2ede2 !important;
+}
+
+html[data-theme="light"] body {
+  background: #faf6ee !important;
+  color: #43403a !important;
+}
+
+/* Hero */
+html[data-theme="dark"] .hero {
+  background: #050914 !important;
+}
+
+html[data-theme="dark"] .hero__photo {
+  opacity: 1 !important;
+  filter: saturate(.92) contrast(.98) !important;
+  transform: scale(1.02) !important;
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(3,8,20,.18) 0%,
+      rgba(3,8,20,.28) 46%,
+      rgba(3,8,20,.72) 100%
+    ),
+    url("assets/bg-hero.webp") center / cover no-repeat !important;
+}
+
+html[data-theme="dark"] .hero__photo::after {
+  background:
+    radial-gradient(
+      circle at 50% 43%,
+      rgba(3,8,20,0) 10%,
+      rgba(3,8,20,.08) 45%,
+      rgba(3,8,20,.40) 100%
+    ) !important;
+}
+
+html[data-theme="light"] .hero__photo {
+  opacity: 1 !important;
+  filter: saturate(.70) contrast(.94) !important;
+  transform: scale(1.02) !important;
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(250,246,238,.62),
+      rgba(250,246,238,.76)
+    ),
+    url("assets/bg-hero.webp") center / cover no-repeat !important;
+}
+
+html[data-theme="light"] .hero__photo::after {
+  background:
+    radial-gradient(
+      circle at 50% 40%,
+      rgba(250,246,238,0) 12%,
+      rgba(250,246,238,.36) 60%,
+      rgba(250,246,238,.72) 100%
+    ) !important;
+}
+
+/* All major sections share the same midnight architectural language. */
+html[data-theme="dark"] .story {
+  background:
+    linear-gradient(rgba(5,9,20,.62), rgba(5,9,20,.72)),
+    url("assets/bg-story.webp") center / cover no-repeat !important;
+  background-attachment: scroll !important;
+}
+
+html[data-theme="dark"] .invitation-card-section {
+  background:
+    linear-gradient(rgba(5,9,20,.68), rgba(5,9,20,.76)),
+    url("assets/bg-invitation.webp") center / cover no-repeat !important;
+}
+
+html[data-theme="dark"] .timeline {
+  background:
+    linear-gradient(rgba(5,9,20,.58), rgba(5,9,20,.72)),
+    url("assets/bg-countdown.webp") center / cover no-repeat !important;
+}
+
+html[data-theme="dark"] .events {
+  background:
+    linear-gradient(rgba(5,9,20,.58), rgba(5,9,20,.72)),
+    url("assets/bg-events.webp") center / cover no-repeat !important;
+}
+
+html[data-theme="dark"] .countdown-section {
+  background:
+    linear-gradient(rgba(5,9,20,.44), rgba(5,9,20,.64)),
+    url("assets/bg-countdown.webp") center / cover no-repeat !important;
+}
+
+html[data-theme="dark"] .venue {
+  background:
+    linear-gradient(rgba(5,9,20,.58), rgba(5,9,20,.72)),
+    url("assets/bg-venue.webp") center / cover no-repeat !important;
+}
+
+html[data-theme="dark"] .footer {
+  background:
+    linear-gradient(rgba(3,7,16,.68), rgba(3,7,16,.80)),
+    url("assets/bg-footer.webp") center / cover no-repeat !important;
+  border-top-color: rgba(194,161,92,.34) !important;
+}
+
+/* Light mode keeps the same architecture, softened into an ivory palette. */
+html[data-theme="light"] .story {
+  background:
+    linear-gradient(rgba(250,246,238,.82), rgba(250,246,238,.88)),
+    url("assets/bg-story.webp") center / cover no-repeat !important;
+}
+
+html[data-theme="light"] .invitation-card-section {
+  background:
+    linear-gradient(rgba(250,246,238,.84), rgba(250,246,238,.90)),
+    url("assets/bg-invitation.webp") center / cover no-repeat !important;
+}
+
+html[data-theme="light"] .timeline {
+  background:
+    linear-gradient(rgba(250,246,238,.84), rgba(250,246,238,.90)),
+    url("assets/bg-countdown.webp") center / cover no-repeat !important;
+}
+
+html[data-theme="light"] .events {
+  background:
+    linear-gradient(rgba(250,246,238,.84), rgba(250,246,238,.90)),
+    url("assets/bg-events.webp") center / cover no-repeat !important;
+}
+
+html[data-theme="light"] .countdown-section {
+  background:
+    linear-gradient(rgba(250,246,238,.74), rgba(250,246,238,.84)),
+    url("assets/bg-countdown.webp") center / cover no-repeat !important;
+}
+
+html[data-theme="light"] .venue {
+  background:
+    linear-gradient(rgba(250,246,238,.84), rgba(250,246,238,.90)),
+    url("assets/bg-venue.webp") center / cover no-repeat !important;
+}
+
+html[data-theme="light"] .footer {
+  background:
+    linear-gradient(rgba(250,246,238,.86), rgba(250,246,238,.93)),
+    url("assets/bg-footer.webp") center / cover no-repeat !important;
+}
+
+/* Put a little separation between the photographic world and content cards. */
+html[data-theme="dark"] .story .polaroid,
+html[data-theme="dark"] .timeline__card,
+html[data-theme="dark"] .event-card,
+html[data-theme="dark"] .venue__map {
+  background: rgba(24,29,38,.90) !important;
+  border-color: rgba(194,161,92,.42) !important;
+}
+
+html[data-theme="light"] .story .polaroid,
+html[data-theme="light"] .timeline__card,
+html[data-theme="light"] .event-card,
+html[data-theme="light"] .venue__map {
+  background: rgba(255,253,248,.90) !important;
+}
+
+/* NALAKS brand marks */
+.hero__nalaks,
+.footer__nalaks {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero__nalaks {
+  margin: 18px auto 0;
+  width: min(220px, 48vw);
+}
+
+.hero__nalaks-logo,
+.footer__nalaks-logo {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+.hero__nalaks-logo--light,
+.footer__nalaks-logo--light {
+  display: none;
+}
+
+html[data-theme="dark"] .hero__nalaks-logo--dark,
+html[data-theme="dark"] .footer__nalaks-logo--dark {
+  display: block;
+}
+
+html[data-theme="dark"] .hero__nalaks-logo--light,
+html[data-theme="dark"] .footer__nalaks-logo--light {
+  display: none;
+}
+
+html[data-theme="light"] .hero__nalaks-logo--dark,
+html[data-theme="light"] .footer__nalaks-logo--dark {
+  display: none;
+}
+
+html[data-theme="light"] .hero__nalaks-logo--light,
+html[data-theme="light"] .footer__nalaks-logo--light {
+  display: block;
+}
+
+.footer__nalaks {
+  width: min(200px, 48vw);
+  margin: 12px auto 2px;
+}
+
+.footer__nalaks-logo--dark {
+  filter: drop-shadow(0 4px 16px rgba(0,0,0,.25));
+}
+
+.footer__nalaks-logo--light {
+  filter: drop-shadow(0 3px 10px rgba(90,72,40,.12));
+}
+
+/* Make the main copy readable over the artwork. */
+html[data-theme="dark"] .section-title,
+html[data-theme="dark"] .section-eyebrow,
+html[data-theme="dark"] .story__names,
+html[data-theme="dark"] .story__message,
+html[data-theme="dark"] .story__date,
+html[data-theme="dark"] .venue__name,
+html[data-theme="dark"] .venue__desc,
+html[data-theme="dark"] .countdown__target,
+html[data-theme="dark"] .footer__names,
+html[data-theme="dark"] .footer__love,
+html[data-theme="dark"] .footer__date {
+  text-shadow: 0 2px 18px rgba(0,0,0,.30);
+}
+
+/* Mobile: prevent oversized artwork crops from making text hard to read. */
+@media (max-width: 640px) {
+  .hero__nalaks {
+    width: min(190px, 54vw);
+    margin-top: 14px;
+  }
+
+  .footer__nalaks {
+    width: min(175px, 52vw);
+  }
+
+  html[data-theme="dark"] .story,
+  html[data-theme="dark"] .timeline,
+  html[data-theme="dark"] .events,
+  html[data-theme="dark"] .countdown-section,
+  html[data-theme="dark"] .venue,
+  html[data-theme="dark"] .footer,
+  html[data-theme="light"] .story,
+  html[data-theme="light"] .timeline,
+  html[data-theme="light"] .events,
+  html[data-theme="light"] .countdown-section,
+  html[data-theme="light"] .venue,
+  html[data-theme="light"] .footer {
+    background-attachment: scroll !important;
+  }
+}
+
+/* ============================================================
+   KEEP CUSTOM SCROLL ENGINE IN CHARGE
+   ============================================================ */
+html,
+html[data-theme="dark"],
+html[data-theme="light"] {
+  scroll-behavior: auto !important;
+}
