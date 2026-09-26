@@ -1716,3 +1716,33 @@ body,
     border-color .35s ease,
     box-shadow .35s ease;
 }
+/* ============================================================
+   HERO SCROLL INDICATOR — CENTERING FIX
+   ============================================================ */
+
+.hero__scroll {
+  left: 50% !important;
+  right: auto !important;
+  transform: translateX(-50%) !important;
+}
+
+/*
+ * hero__scroll also has .hero-anim.
+ * The normal hero animation ends with transform:none,
+ * which was cancelling translateX(-50%).
+ */
+@keyframes heroScrollIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+.hero__scroll.hero-anim {
+  animation-name: heroScrollIn;
+}
