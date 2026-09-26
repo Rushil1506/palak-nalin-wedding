@@ -2094,25 +2094,15 @@
     `;
   }
 
-  // ============================================================
+   // ============================================================
   // MUSIC SETUP
   // ============================================================
 
   function setupMusic() {
-    const audio =
-      $('#audio');
-
-    const button =
-      $('#musicControl');
-
-    const icon =
-      $('#musicControlIcon');
-
-    const beginButton =
-      $('#beginInvitation');
-
-    const story =
-      $('#story');
+    const audio = $('#audio');
+    const button = $('#musicControl');
+    const icon = $('#musicControlIcon');
+    const beginButton = $('#beginInvitation');
 
     if (!audio) {
       return;
@@ -2120,96 +2110,123 @@
 
     audio.volume = 0.65;
 
+    /*
+     * Music state:
+     *
+     * hasStarted:
+     *   Has the celebration button successfully started music?
+     *
+     * manuallyPaused:
+     *   Did the user explicitly pause music using the
+     *   corner music button?
+     *
+     * The Begin button NEVER resumes music after a manual pause.
+     */
+
     let hasStarted = false;
-    let storyReached = false;
     let manuallyPaused = false;
 
-    const updateButton =
-      () => {
-        if (!button) {
-          return;
-        }
+    const updateButton = () => {
+      if (!button) {
+        return;
+      }
 
-        const playing =
-          !audio.paused;
+      const playing = !audio.paused;
 
-        button.classList.toggle(
-          'is-playing',
-          playing
-        );
+      button.classList.toggle(
+        'is-playing',
+        playing
+      );
 
-        button.setAttribute(
-          'aria-pressed',
-          String(playing)
-        );
+      button.setAttribute(
+        'aria-pressed',
+        String(playing)
+      );
 
-        button.setAttribute(
-          'aria-label',
-          playing
-            ? 'Pause music'
-            : 'Play music'
-        );
+      button.setAttribute(
+        'aria-label',
+        playing
+          ? 'Pause music'
+          : 'Play music'
+      );
 
-        button.setAttribute(
-          'title',
-          playing
-            ? 'Pause music'
-            : 'Play music'
-        );
+      button.setAttribute(
+        'title',
+        playing
+          ? 'Pause music'
+          : 'Play music'
+      );
 
-        if (icon) {
-          icon.textContent =
-            playing
-              ? 'Ⅱ'
-              : '♪';
-        }
-      };
+      if (icon) {
+        icon.textContent =
+          playing ? 'Ⅱ' : '♪';
+      }
+    };
 
-    const startMusic =
-      async () => {
-        if (!audio) {
-          return false;
-        }
+    /*
+     * Start music.
+     *
+     * This function is only called by the music button
+     * or the FIRST successful celebration-button click.
+     */
+    const startMusic = async () => {
+      if (!audio) {
+        return false;
+      }
 
-        if (
-          !audio.paused
-        ) {
-          hasStarted = true;
-          updateButton();
-          return true;
-        }
-
-        try {
-          await audio.play();
-
-          hasStarted = true;
-          manuallyPaused = false;
-
-          updateButton();
-
-          return true;
-        } catch {
-          updateButton();
-          return false;
-        }
-      };
-
-    const stopMusic =
-      () => {
-        audio.pause();
-        manuallyPaused = true;
+      /*
+       * Already playing:
+       * Do absolutely nothing.
+       */
+      if (!audio.paused) {
         updateButton();
-      };
+        return true;
+      }
 
-    const toggleMusic =
-      async () => {
-        if (audio.paused) {
-          await startMusic();
-        } else {
-          stopMusic();
-        }
-      };
+      try {
+        await audio.play();
 
+        hasStarted = true;
+        manuallyPaused = false;
+
+        updateButton();
+
+        return true;
+      } catch {
+        updateButton();
+        return false;
+      }
+    };
+
+    /*
+     * Manual pause.
+     *
+     * Once this happens, the celebration button will NOT
+     * restart the music.
+     */
+    const pauseMusic = () => {
+      audio.pause();
+
+      manuallyPaused = true;
+
+      updateButton();
+    };
+
+    /*
+     * Corner button is the ONLY control that can resume
+     * music after a manual pause.
+     */
+    const toggleMusic = async () => {
+      if (audio.paused) {
+        await startMusic();
+      } else {
+        pauseMusic();
+      }
+    };
+
+    /*
+     * Corner music button
+     */
     if (button) {
       button.addEventListener(
         'click',
@@ -2245,128 +2262,53 @@
     );
 
     /*
-     * HERO BUTTON
+     * BEGIN THE CELEBRATION
      *
-     * Clicking this button is a user gesture, which gives
-     * the browser the best opportunity to allow audio playback.
+     * First click:
+     *   - starts music
+     *   - scrolls to Our Story
      *
-     * It:
-     * 1. Starts the song.
-     * 2. Smoothly scrolls to Our Story.
+     * Later clicks:
+     *   - NEVER restart music
+     *   - NEVER resume manually paused music
+     *   - still scroll smoothly
      */
-
     if (beginButton) {
       beginButton.addEventListener(
         'click',
         async () => {
-          await startMusic();
+
+          /*
+           * Only allow the celebration button to
+           * initiate music once.
+           */
+          if (
+            !hasStarted &&
+            !manuallyPaused
+          ) {
+            await startMusic();
+          }
 
           const target =
-            document.querySelector(
-              '#story'
-            );
+            document.querySelector('#story');
 
           if (target) {
-            target.scrollIntoView({
-              behavior: 'smooth',
-              block: 'start'
-            });
+            smoothScrollTo(target);
           }
         }
       );
     }
 
     /*
-     * NATURAL SCROLL
+     * IMPORTANT:
      *
-     * When Our Story enters the viewport,
-     * attempt to start the music.
-     */
-
-    if (
-      story &&
-      'IntersectionObserver' in window
-    ) {
-      const observer =
-        new IntersectionObserver(
-          (entries) => {
-            entries.forEach(
-              (entry) => {
-                if (
-                  entry.isIntersecting
-                ) {
-                  storyReached =
-                    true;
-
-                  /*
-                   * Don't override a deliberate
-                   * manual pause.
-                   */
-                  if (
-                    !manuallyPaused
-                  ) {
-                    startMusic();
-                  }
-
-                  observer.disconnect();
-                }
-              }
-            );
-          },
-          {
-            threshold: 0.18
-          }
-        );
-
-      observer.observe(story);
-    }
-
-    /*
-     * AUTOPLAY FALLBACK
+     * There is intentionally NO IntersectionObserver
+     * autoplay here.
      *
-     * Some browsers block audible autoplay.
-     * Retry after a user interaction once
-     * Our Story has been reached.
+     * Scrolling to Our Story must never start the music.
      */
-
-    const retry =
-      () => {
-        if (
-          storyReached &&
-          !hasStarted &&
-          !manuallyPaused
-        ) {
-          startMusic();
-        }
-      };
-
-    document.addEventListener(
-      'pointerdown',
-      retry,
-      {
-        passive: true
-      }
-    );
-
-    document.addEventListener(
-      'keydown',
-      retry,
-      {
-        passive: true
-      }
-    );
-
-    document.addEventListener(
-      'touchstart',
-      retry,
-      {
-        passive: true
-      }
-    );
-
     updateButton();
   }
-
   // ============================================================
   // GALLERY
   // ============================================================
