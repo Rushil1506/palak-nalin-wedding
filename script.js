@@ -984,25 +984,25 @@
             ${esc(cfg.heroEyebrow)}
           </p>
 
-          <h1
-            class="hero__names hero-anim"
-            style="--d:.35s"
-          >
-            <span class="hero__name">
-              ${esc(cfg.bride)}
-            </span>
+       <h1
+  class="hero__names hero-anim"
+  style="--d:.35s"
+>
+  <span class="hero__name">
+    ${esc(cfg.bride)}
+  </span>
 
-            <span
-              class="hero__amp"
-              aria-hidden="true"
-            >
-              &amp;
-            </span>
+  <span
+    class="hero__weds"
+    aria-hidden="true"
+  >
+    weds
+  </span>
 
-            <span class="hero__name">
-              ${esc(cfg.groom)}
-            </span>
-          </h1>
+  <span class="hero__name">
+    ${esc(cfg.groom)}
+  </span>
+</h1>
 
           <p
             class="hero__invite hero-anim"
@@ -2143,46 +2143,79 @@
   // ============================================================
 
   function musicHTML() {
-    /*
-     * The current config has music: "".
-     * We therefore deliberately fall back to:
-     *
-     * assets/music.mp3
-     *
-     * Uploading that file to GitHub is enough.
-     */
+  const musicSrc =
+    cfg.assets?.music ||
+    cfg.music ||
+    'assets/music.mp3';
 
-    const musicSrc =
-      cfg.assets?.music ||
-      cfg.music ||
-      'assets/music.mp3';
-
-    return `
-      <button
-        class="music-control"
-        id="musicControl"
-        type="button"
-        aria-label="Play music"
-        aria-pressed="false"
-        title="Play / pause music"
+  return `
+    <!-- MUSIC -->
+    <button
+      class="music-control"
+      id="musicControl"
+      type="button"
+      aria-label="Play music"
+      aria-pressed="false"
+      title="Play / pause music"
+    >
+      <span
+        class="music-control__icon"
+        id="musicControlIcon"
+        aria-hidden="true"
       >
-        <span
-          class="music-control__icon"
-          id="musicControlIcon"
-          aria-hidden="true"
-        >
-          ♪
-        </span>
-      </button>
+        ♪
+      </span>
 
-      <audio
-        id="audio"
-        src="${esc(musicSrc)}"
-        loop
-        preload="auto"
-      ></audio>
-    `;
-  }
+      <span
+        class="music-control__label"
+        id="musicControlLabel"
+      >
+        Play Music
+      </span>
+    </button>
+
+    <!-- FLOATING COUNTDOWN -->
+    <div
+      class="floating-countdown"
+      id="floatingCountdown"
+      aria-label="Countdown to the wedding"
+    >
+      <span
+        class="floating-countdown__compact"
+        aria-hidden="true"
+      >
+        ◷
+      </span>
+
+      <span
+        class="floating-countdown__full"
+        aria-hidden="true"
+      >
+        <span class="floating-countdown__intro">
+          WEDDING IN
+        </span>
+
+        <span class="floating-countdown__values">
+          <strong id="floatingDays">--</strong>
+          <small>D</small>
+
+          <strong id="floatingHours">--</strong>
+          <small>H</small>
+
+          <strong id="floatingMinutes">--</strong>
+          <small>M</small>
+        </span>
+      </span>
+    </div>
+
+    <audio
+      id="audio"
+      src="${esc(musicSrc)}"
+      loop
+      preload="auto"
+    ></audio>
+  `;
+}
 
    // ============================================================
   // MUSIC SETUP
@@ -2247,6 +2280,15 @@
         icon.textContent =
           playing ? 'Ⅱ' : '♪';
       }
+      const label =
+  $('#musicControlLabel');
+
+if (label) {
+  label.textContent =
+    playing
+      ? 'Pause Music'
+      : 'Play Music';
+}
     };
 
     const startMusic = async () => {
@@ -2968,6 +3010,126 @@
       );
   }
   // ============================================================
+// FLOATING COUNTDOWN
+// ============================================================
+
+function setupFloatingCountdown() {
+  const widget =
+    $('#floatingCountdown');
+
+  const countdownSection =
+    $('#countdown');
+
+  if (!widget || !countdownSection) {
+    return;
+  }
+
+  const daysEl =
+    $('#floatingDays');
+
+  const hoursEl =
+    $('#floatingHours');
+
+  const minutesEl =
+    $('#floatingMinutes');
+
+  const target =
+    new Date(
+      cfg.weddingDateTime ||
+      `${cfg.dateISO}T20:00:00+05:30`
+    ).getTime();
+
+  if (Number.isNaN(target)) {
+    return;
+  }
+
+  const updateValues = () => {
+    const difference =
+      Math.max(
+        0,
+        target - Date.now()
+      );
+
+    const days =
+      Math.floor(
+        difference / 86400000
+      );
+
+    const hours =
+      Math.floor(
+        difference / 3600000
+      ) % 24;
+
+    const minutes =
+      Math.floor(
+        difference / 60000
+      ) % 60;
+
+    if (daysEl) {
+      daysEl.textContent =
+        String(days).padStart(2, '0');
+    }
+
+    if (hoursEl) {
+      hoursEl.textContent =
+        String(hours).padStart(2, '0');
+    }
+
+    if (minutesEl) {
+      minutesEl.textContent =
+        String(minutes).padStart(2, '0');
+    }
+  };
+
+  updateValues();
+
+  const timer =
+    setInterval(
+      updateValues,
+      1000
+    );
+
+  /*
+   * Expand only when the actual countdown section
+   * enters the viewport.
+   */
+  if (
+    'IntersectionObserver'
+    in window
+  ) {
+    const observer =
+      new IntersectionObserver(
+        (entries) => {
+          entries.forEach(
+            (entry) => {
+              widget.classList.toggle(
+                'is-expanded',
+                entry.isIntersecting
+              );
+            }
+          );
+        },
+        {
+          threshold: 0.18,
+          rootMargin:
+            '-10% 0px -12% 0px'
+        }
+      );
+
+    observer.observe(
+      countdownSection
+    );
+  }
+
+  window.addEventListener(
+    'pagehide',
+    () => {
+      clearInterval(timer);
+    },
+    { once: true }
+  );
+}
+  // ============================================================
   // THEME TOGGLE
   // ============================================================
 
@@ -3140,6 +3302,7 @@
       setupCountdown();
     }
 
+    setupFloatingCountdown();
     setupMusic();
     setupGallery();
     setupRevealAnimations();
