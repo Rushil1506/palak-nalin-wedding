@@ -529,14 +529,14 @@
             />
           </div>
 
-          <button
-            type="button"
-            class="hero__begin hero-anim"
-            id="beginInvitation"
-            style="--d:1.02s"
-          >
-            Begin the Celebration
-          </button>
+         <a
+  href="#story"
+  class="hero__begin hero-anim"
+  id="beginInvitation"
+  style="--d:1.02s"
+>
+  Begin the Celebration
+</a>
 
         </div>
 
