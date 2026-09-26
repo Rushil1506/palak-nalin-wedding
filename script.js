@@ -2045,40 +2045,7 @@
     const token =
       smoothScrollToken;
 
-    const nav =
-      document.querySelector(
-        '#siteNav'
-      );
-
-    const navOffset =
-      nav
-        ? nav.getBoundingClientRect().height
-        : 0;
-
-    const startY =
-      window.scrollY ||
-      window.pageYOffset ||
-      0;
-
-    const maxY =
-      Math.max(
-        0,
-        document.documentElement
-          .scrollHeight -
-        window.innerHeight
-      );
-
-    const targetY =
-      Math.min(
-        maxY,
-        Math.max(
-          0,
-          target.getBoundingClientRect().top +
-          startY -
-          navOffset -
-          8
-        )
-      );
+    
 
     const distance =
       targetY -
