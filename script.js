@@ -515,6 +515,7 @@
             href="#story"
             class="hero__begin hero-anim"
             id="beginInvitation"
+            data-scroll-offset="160"
             style="--d:1.02s"
           >
             Begin the Celebration
@@ -1828,25 +1829,29 @@
      *
      * This listener does ONLY the first-click music behavior.
      */
-    beginButton?.addEventListener(
-      'click',
-      () => {
-        if (
-          celebrationClickHandled ||
-          manuallyPaused
-        ) {
-          return;
-        }
+   beginButton?.addEventListener(
+  'click',
+  () => {
+    /*
+     * Do NOT scroll here.
+     *
+     * setupSmoothScrolling() owns all
+     * internal page navigation.
+     */
 
-        celebrationClickHandled =
-          true;
+    if (
+      celebrationClickHandled ||
+      manuallyPaused
+    ) {
+      return;
+    }
 
-        void startMusic();
-      }
-    );
+    celebrationClickHandled =
+      true;
 
-    updateButton();
+    void startMusic();
   }
+);
 
   /* ============================================================
      GALLERY
@@ -2063,176 +2068,160 @@
     );
   }
 
-  /* ============================================================
-     SMOOTH SCROLL ENGINE
-     ============================================================ */
+  let smoothScrollFrame = null;
+let smoothScrollToken = 0;
 
-  let smoothScrollFrame =
-    null;
+function smoothScrollTo(
+  target,
+  extraOffset = 0
+) {
+  if (!target) {
+    return;
+  }
 
-  let smoothScrollToken =
+  if (smoothScrollFrame !== null) {
+    cancelAnimationFrame(
+      smoothScrollFrame
+    );
+
+    smoothScrollFrame = null;
+  }
+
+  smoothScrollToken += 1;
+
+  const token =
+    smoothScrollToken;
+
+  const startY =
+    window.scrollY ||
+    window.pageYOffset ||
     0;
 
-  function smoothScrollTo(
-    target
+  const rect =
+    target.getBoundingClientRect();
+
+  /*
+   * Base destination = top of target.
+   *
+   * extraOffset is positive when we deliberately
+   * want to scroll further INTO the target section.
+   */
+  const requestedY =
+    rect.top +
+    startY +
+    extraOffset;
+
+  const maxY =
+    Math.max(
+      0,
+      document.documentElement.scrollHeight -
+      window.innerHeight
+    );
+
+  const targetY =
+    Math.min(
+      maxY,
+      Math.max(
+        0,
+        requestedY
+      )
+    );
+
+  const distance =
+    targetY -
+    startY;
+
+  if (
+    Math.abs(distance) < 1
   ) {
-    if (!target) {
-      return;
-    }
+    window.scrollTo(
+      0,
+      targetY
+    );
 
-    if (
-      smoothScrollFrame !==
-      null
-    ) {
-      cancelAnimationFrame(
-        smoothScrollFrame
-      );
+    return;
+  }
 
-      smoothScrollFrame =
-        null;
-    }
-
-    smoothScrollToken +=
-      1;
-
-    const token =
-      smoothScrollToken;
-
-    const startY =
-      window.scrollY ||
-      window.pageYOffset ||
-      0;
-
-    /*
-     * Measure the section immediately before starting.
-     */
-    const rect =
-      target.getBoundingClientRect();
-
-    const targetY =
+  const duration =
+    Math.min(
+      1250,
       Math.max(
-        0,
-        rect.top +
-        startY
-      );
+        700,
+        Math.abs(distance) * 0.55
+      )
+    );
 
-    const maxY =
-      Math.max(
-        0,
-        document.documentElement.scrollHeight -
-        window.innerHeight
-      );
+  const startTime =
+    performance.now();
 
-    const finalY =
-      Math.min(
-        targetY,
-        maxY
-      );
+  const easeInOutCubic =
+    (t) =>
+      t < 0.5
+        ? 4 * t * t * t
+        : 1 -
+          Math.pow(
+            -2 * t + 2,
+            3
+          ) / 2;
 
-    const distance =
-      finalY -
-      startY;
+  const animate =
+    (now) => {
+      if (
+        token !==
+        smoothScrollToken
+      ) {
+        return;
+      }
 
-    if (
-      Math.abs(distance) <
-      1
-    ) {
-      window.scrollTo(
-        0,
-        finalY
-      );
-
-      return;
-    }
-
-    /*
-     * Smooth duration scales with distance but is capped.
-     */
-    const duration =
-      Math.min(
-        1200,
-        Math.max(
-          650,
-          Math.abs(distance) *
-          0.55
-        )
-      );
-
-    const startTime =
-      performance.now();
-
-    const easeInOutCubic =
-      (t) =>
-        t < 0.5
-          ? 4 * t * t * t
-          : 1 -
-            Math.pow(
-              -2 * t + 2,
-              3
-            ) / 2;
-
-    const animate =
-      (now) => {
-        if (
-          token !==
-          smoothScrollToken
-        ) {
-          return;
-        }
-
-        const progress =
-          Math.min(
-            1,
-            (
-              now -
-              startTime
-            ) /
-            duration
-          );
-
-        const eased =
-          easeInOutCubic(
-            progress
-          );
-
-        const y =
-          startY +
-          distance *
-          eased;
-
-        /*
-         * Numeric scrollTo bypasses browser native
-         * smooth-scroll and reduced-motion settings.
-         */
-        window.scrollTo(
-          0,
-          y
+      const progress =
+        Math.min(
+          1,
+          (
+            now -
+            startTime
+          ) /
+          duration
         );
 
-        if (
-          progress <
-          1
-        ) {
-          smoothScrollFrame =
-            requestAnimationFrame(
-              animate
-            );
-        } else {
-          smoothScrollFrame =
-            null;
+      const eased =
+        easeInOutCubic(
+          progress
+        );
 
-          window.scrollTo(
-            0,
-            finalY
-          );
-        }
-      };
+      const currentY =
+        startY +
+        distance *
+        eased;
 
-    smoothScrollFrame =
-      requestAnimationFrame(
-        animate
+      window.scrollTo(
+        0,
+        currentY
       );
-  }
+
+      if (
+        progress <
+        1
+      ) {
+        smoothScrollFrame =
+          requestAnimationFrame(
+            animate
+          );
+      } else {
+        smoothScrollFrame =
+          null;
+
+        window.scrollTo(
+          0,
+          targetY
+        );
+      }
+    };
+
+  smoothScrollFrame =
+    requestAnimationFrame(
+      animate
+    );
+}
 
   function closeMobileMenu() {
     document.body.classList.remove(
