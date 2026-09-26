@@ -92,6 +92,17 @@ body.menu-open .nav {
   display: grid;
   place-items: center;
 }
+.nav__logo {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.nav__brand:hover .nav__logo {
+  transform: scale(1.04);
+}
 
 .nav__mono {
   width: 44px;
@@ -1420,6 +1431,12 @@ body.menu-open .mobile-menu {
 }
 .event-card__time,.event-card__venue,.event-card__desc{overflow-wrap:anywhere}
 @media (max-width:640px){.story__blessings span{font-size:14px}}
+@media (max-width: 700px) {
+  .nav__logo {
+    width: 40px;
+    height: 40px;
+  }
+}
 
 /* Source event themes */
 .event-card--sangeet .event-card__motif{background:radial-gradient(circle at 50% 42%,#f8efe5,#ead7c5);color:#a56c4b}
