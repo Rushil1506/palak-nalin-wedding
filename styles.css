@@ -310,8 +310,10 @@ body.menu-open .mobile-menu {
 .hero__inner {
   position: relative;
   z-index: 2;
-  text-align: center;
+  width: 100%;
   max-width: 860px;
+  text-align: center;
+  padding-bottom: 92px;
 }
 
 .hero-anim {
@@ -330,27 +332,30 @@ body.menu-open .mobile-menu {
 }
 
 .hero__names {
-  margin: 30px 0 8px;
+  margin: 26px 0 8px;
   display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
-  gap: 0 clamp(12px, 2.5vw, 28px);
+  gap: 0;
 }
 
 .hero__name {
+  display: block;
   font-family: var(--serif);
   font-weight: 500;
-  font-size: clamp(64px, 12vw, 148px);
-  line-height: 1;
+  font-size: clamp(70px, 10vw, 144px);
+  line-height: .82;
   color: var(--ink);
 }
 
-.hero__amp {
+.hero__weds {
+  display: block;
+  margin: 14px 0 13px;
   font-family: var(--script);
-  font-size: clamp(46px, 7.5vw, 96px);
-  color: var(--blushDeep);
-  transform: translateY(.08em);
+  font-size: clamp(44px, 5.8vw, 80px);
+  line-height: .78;
+  color: var(--goldDeep);
 }
 
 .hero__invite {
@@ -396,12 +401,13 @@ body.menu-open .mobile-menu {
 .hero__scroll {
   z-index: 4;
   position: absolute;
-  bottom: clamp(26px, 5vh, 46px);
+  bottom: 9px;
   left: 50%;
   transform: translateX(-50%);
   display: grid;
   justify-items: center;
-  gap: 12px;
+  gap: 5px;
+  width: max-content;
   text-decoration: none;
 }
 
@@ -415,7 +421,7 @@ body.menu-open .mobile-menu {
 
 .hero__scroll-line {
   width: 1px;
-  height: 52px;
+  height: 34px;
   background: linear-gradient(var(--gold), transparent);
   overflow: hidden;
   position: relative;
@@ -2134,4 +2140,386 @@ html,
 html[data-theme="dark"],
 html[data-theme="light"] {
   scroll-behavior: auto !important;
+}
+/* ============================================================
+   HERO — MORE COLOUR / LESS FADE
+   ============================================================ */
+
+html[data-theme="dark"] .hero__photo {
+  opacity: 1 !important;
+
+  filter:
+    saturate(1.04)
+    contrast(1.01)
+    brightness(1.02) !important;
+
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(3, 8, 20, .04) 0%,
+      rgba(3, 8, 20, .08) 48%,
+      rgba(3, 8, 20, .34) 100%
+    ),
+    url("assets/bg-hero.webp")
+      center / cover no-repeat !important;
+}
+
+html[data-theme="dark"] .hero__photo::after {
+  background:
+    radial-gradient(
+      circle at 50% 40%,
+      rgba(3, 8, 20, 0) 13%,
+      rgba(3, 8, 20, .025) 58%,
+      rgba(3, 8, 20, .13) 100%
+    ) !important;
+}
+
+.hero__weds {
+  font-family:
+    var(--script) !important;
+
+  color:
+    var(--goldDeep) !important;
+}
+@media (max-width: 600px) {
+
+  .hero {
+    padding-bottom: 124px !important;
+  }
+
+  .hero__inner {
+    padding-bottom: 96px !important;
+  }
+
+  .hero__names {
+    margin-top: 20px;
+  }
+
+  .hero__name {
+    font-size:
+      clamp(62px, 18vw, 92px) !important;
+  }
+
+  .hero__weds {
+    margin:
+      12px 0 11px;
+
+    font-size:
+      clamp(42px, 12vw, 62px) !important;
+  }
+
+  .hero__nalaks {
+    margin-top: 15px !important;
+  }
+
+  .hero__begin {
+    margin-top: 24px !important;
+  }
+
+  .hero__scroll {
+    bottom: 8px !important;
+    gap: 4px !important;
+  }
+
+  .hero__scroll-line {
+    height: 30px !important;
+  }
+}
+/* ============================================================
+   FLOATING MUSIC — LEFT PILL
+   ============================================================ */
+
+.music-control {
+  position: fixed !important;
+  z-index: 100 !important;
+
+  left: 18px !important;
+  right: auto !important;
+  bottom: 18px !important;
+
+  min-width: 128px !important;
+  height: 48px !important;
+
+  padding: 0 18px !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  gap: 9px !important;
+
+  border:
+    1px solid rgba(194,161,92,.72) !important;
+
+  border-radius:
+    999px !important;
+
+  background:
+    rgba(5,9,20,.90) !important;
+
+  color:
+    #f2ede2 !important;
+
+  box-shadow:
+    0 12px 30px rgba(0,0,0,.30) !important;
+
+  backdrop-filter:
+    blur(12px);
+
+  -webkit-backdrop-filter:
+    blur(12px);
+
+  transition:
+    transform .25s ease,
+    box-shadow .25s ease,
+    background-color .3s ease;
+}
+
+.music-control:hover {
+  transform:
+    translateY(-2px);
+
+  box-shadow:
+    0 16px 38px rgba(0,0,0,.36) !important;
+}
+
+.music-control__icon {
+  font-size: 16px !important;
+  line-height: 1;
+}
+
+.music-control__label {
+  display: inline-block !important;
+
+  white-space:
+    nowrap;
+
+  font-size: 10px;
+
+  font-weight: 500;
+
+  letter-spacing:
+    .16em;
+
+  text-transform:
+    uppercase;
+}
+
+@media (max-width: 600px) {
+
+  .music-control {
+    left: 12px !important;
+    right: auto !important;
+    bottom: 12px !important;
+
+    min-width:
+      128px !important;
+
+    height:
+      48px !important;
+
+    padding:
+      0 16px !important;
+  }
+}
+/* ============================================================
+   FLOATING COUNTDOWN
+   ============================================================ */
+
+.floating-countdown {
+  position: fixed !important;
+  z-index: 99 !important;
+
+  right: 18px !important;
+  bottom: 18px !important;
+
+  width: 48px;
+  height: 48px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  overflow: hidden;
+
+  border:
+    1px solid rgba(194,161,92,.72);
+
+  border-radius:
+    999px;
+
+  background:
+    rgba(5,9,20,.90);
+
+  color:
+    #f2ede2;
+
+  box-shadow:
+    0 12px 30px rgba(0,0,0,.30);
+
+  backdrop-filter:
+    blur(12px);
+
+  -webkit-backdrop-filter:
+    blur(12px);
+
+  transition:
+    width .65s cubic-bezier(.22,1,.36,1),
+    background-color .35s ease,
+    box-shadow .35s ease,
+    border-color .35s ease;
+}
+
+/* Small state */
+
+.floating-countdown__compact {
+  font-size: 19px;
+  line-height: 1;
+
+  transition:
+    opacity .2s ease,
+    transform .4s ease;
+}
+
+/* Expanded state */
+
+.floating-countdown__full {
+  position: absolute;
+  inset: 0;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  padding: 0 14px;
+
+  opacity: 0;
+
+  transform:
+    translateX(14px);
+
+  pointer-events: none;
+
+  transition:
+    opacity .30s ease .12s,
+    transform .50s cubic-bezier(.22,1,.36,1) .08s;
+}
+
+.floating-countdown__intro {
+  font-size: 7px;
+
+  font-weight: 600;
+
+  letter-spacing:
+    .23em;
+
+  color:
+    #c2a15c;
+}
+
+.floating-countdown__values {
+  display: flex;
+
+  align-items:
+    baseline;
+
+  gap: 3px;
+
+  margin-top: 3px;
+}
+
+.floating-countdown__values strong {
+  font-family:
+    var(--serif);
+
+  font-size:
+    21px;
+
+  line-height:
+    .9;
+
+  font-weight:
+    500;
+
+  font-variant-numeric:
+    tabular-nums;
+}
+
+.floating-countdown__values small {
+  margin-right:
+    5px;
+
+  font-size:
+    7px;
+
+  letter-spacing:
+    .08em;
+
+  color:
+    #b9b1a5;
+}
+
+/* Expanded */
+
+.floating-countdown.is-expanded {
+  width:
+    174px;
+
+  border-color:
+    rgba(194,161,92,.90);
+
+  box-shadow:
+    0 0 0 4px rgba(194,161,92,.08),
+    0 16px 40px rgba(0,0,0,.36);
+}
+
+.floating-countdown.is-expanded
+.floating-countdown__compact {
+  opacity:
+    0;
+
+  transform:
+    scale(.72);
+}
+
+.floating-countdown.is-expanded
+.floating-countdown__full {
+  opacity:
+    1;
+
+  transform:
+    translateX(0);
+}
+
+@media (max-width: 600px) {
+
+  .floating-countdown {
+    right: 12px !important;
+    bottom: 12px !important;
+
+    width:
+      46px;
+    height:
+      46px;
+  }
+
+  .floating-countdown.is-expanded {
+    width:
+      160px;
+  }
+}
+html[data-theme="light"] .music-control {
+  background:
+    rgba(255,253,248,.94) !important;
+
+  color:
+    #43403a !important;
+}
+
+html[data-theme="light"] .floating-countdown {
+  background:
+    rgba(255,253,248,.94) !important;
+
+  color:
+    #43403a !important;
 }
