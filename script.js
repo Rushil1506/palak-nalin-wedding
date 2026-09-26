@@ -59,13 +59,22 @@
   }
 
   function setTheme(theme) {
-    const next = theme === 'light' ? 'light' : 'dark';
+    const next =
+      theme === 'light'
+        ? 'light'
+        : 'dark';
 
-    document.documentElement.dataset.theme = next;
-    document.documentElement.style.colorScheme = next;
+    document.documentElement.dataset.theme =
+      next;
+
+    document.documentElement.style.colorScheme =
+      next;
 
     try {
-      localStorage.setItem('palak-theme', next);
+      localStorage.setItem(
+        'palak-theme',
+        next
+      );
     } catch {}
   }
 
@@ -81,18 +90,29 @@
       `${cfg.dateLabel || ''} · ${cfg.city || ''} · ${cfg.venue || ''}`;
 
     const baseUrl = (
-      cfg.siteUrl || window.location.href
+      cfg.siteUrl ||
+      window.location.href
     )
       .replace(/#.*$/, '')
       .replace(/\/$/, '');
 
     document.title = title;
 
-    const setMeta = (selector, attribute, value) => {
-      const element = document.querySelector(selector);
+    const setMeta = (
+      selector,
+      attribute,
+      value
+    ) => {
+      const element =
+        document.querySelector(
+          selector
+        );
 
       if (element) {
-        element.setAttribute(attribute, value);
+        element.setAttribute(
+          attribute,
+          value
+        );
       }
     };
 
@@ -134,10 +154,13 @@
     );
 
     const canonical =
-      document.querySelector('link[rel="canonical"]');
+      document.querySelector(
+        'link[rel="canonical"]'
+      );
 
     if (canonical) {
-      canonical.href = `${baseUrl}/`;
+      canonical.href =
+        `${baseUrl}/`;
     }
   }
 
@@ -646,6 +669,7 @@
               brideParents || groomParents
                 ? `
                   <div class="story__blessings">
+
                     <p>
                       With the blessings of
                     </p>
@@ -731,7 +755,9 @@
                   cfg.bride ||
                   'Palak'
                 )}
+
                 &amp;
+
                 ${esc(
                   cfg.groom ||
                   'Nalin'
@@ -1663,20 +1689,24 @@
     const beginButton =
       $('#beginInvitation');
 
+    /*
+     * Do not return just because there is no audio.
+     * The celebration link's navigation is handled
+     * independently by setupSmoothScrolling().
+     */
     if (!audio) {
       return;
     }
 
-    audio.volume =
-      0.65;
+    audio.volume = 0.65;
 
     /*
-     * Music state rules:
+     * Music rules:
      *
-     * - Only the FIRST Begin click can initiate music.
-     * - Later Begin clicks cannot start/restart/resume music.
-     * - The corner button can always manually play/pause music.
-     * - Scrolling never starts music.
+     * 1. FIRST Begin click can initiate music.
+     * 2. Later Begin clicks never restart/resume it.
+     * 3. Corner button can always manually play/pause.
+     * 4. Scrolling never starts music.
      */
 
     let celebrationClickHandled =
@@ -1756,10 +1786,13 @@
 
         try {
           await audio.play();
+
           updateButton();
+
           return true;
         } catch {
           updateButton();
+
           return false;
         } finally {
           playInProgress =
@@ -1770,8 +1803,10 @@
     const pauseMusic =
       () => {
         audio.pause();
+
         manuallyPaused =
           true;
+
         updateButton();
       };
 
@@ -1779,8 +1814,8 @@
       async () => {
         if (audio.paused) {
           /*
-           * Manual resume is explicitly allowed from
-           * the corner music button.
+           * Manual resume from the corner button
+           * is always allowed.
            */
           manuallyPaused =
             false;
@@ -1791,6 +1826,7 @@
         }
       };
 
+    /* Corner music button */
     button?.addEventListener(
       'click',
       toggleMusic
@@ -1822,36 +1858,38 @@
     );
 
     /*
-     * The Begin link is intentionally NOT scrolled here.
+     * IMPORTANT:
      *
-     * Its href="#story" is handled by the single global
-     * smooth-scroll system below.
+     * We do NOT scroll here.
      *
-     * This listener does ONLY the first-click music behavior.
+     * Begin the Celebration has href="#story",
+     * and setupSmoothScrolling() owns that navigation.
+     *
+     * This listener only handles its music behavior.
      */
-   beginButton?.addEventListener(
-  'click',
-  () => {
-    /*
-     * Do NOT scroll here.
-     *
-     * setupSmoothScrolling() owns all
-     * internal page navigation.
-     */
+    beginButton?.addEventListener(
+      'click',
+      () => {
+        /*
+         * If the user already clicked Begin once,
+         * never use it to start/resume music again.
+         */
+        if (
+          celebrationClickHandled ||
+          manuallyPaused
+        ) {
+          return;
+        }
 
-    if (
-      celebrationClickHandled ||
-      manuallyPaused
-    ) {
-      return;
-    }
+        celebrationClickHandled =
+          true;
 
-    celebrationClickHandled =
-      true;
+        void startMusic();
+      }
+    );
 
-    void startMusic();
+    updateButton();
   }
-);
 
   /* ============================================================
      GALLERY
@@ -1862,7 +1900,9 @@
       (cfg.gallery || [])
         .filter(Boolean);
 
-    if (images.length <= 1) {
+    if (
+      images.length <= 1
+    ) {
       return;
     }
 
@@ -1889,7 +1929,10 @@
     const show =
       (index) => {
         current =
-          (index + images.length) %
+          (
+            index +
+            images.length
+          ) %
           images.length;
 
         if (image) {
@@ -1898,10 +1941,14 @@
         }
 
         dots.forEach(
-          (dot, indexValue) => {
+          (
+            dot,
+            indexValue
+          ) => {
             dot.classList.toggle(
               'active',
-              indexValue === current
+              indexValue ===
+              current
             );
           }
         );
@@ -2068,160 +2115,187 @@
     );
   }
 
-  let smoothScrollFrame = null;
-let smoothScrollToken = 0;
+  /* ============================================================
+     TRUE SMOOTH SCROLL ENGINE
+     ============================================================ */
 
-function smoothScrollTo(
-  target,
-  extraOffset = 0
-) {
-  if (!target) {
-    return;
-  }
+  let smoothScrollFrame =
+    null;
 
-  if (smoothScrollFrame !== null) {
-    cancelAnimationFrame(
-      smoothScrollFrame
-    );
-
-    smoothScrollFrame = null;
-  }
-
-  smoothScrollToken += 1;
-
-  const token =
-    smoothScrollToken;
-
-  const startY =
-    window.scrollY ||
-    window.pageYOffset ||
+  let smoothScrollToken =
     0;
 
-  const rect =
-    target.getBoundingClientRect();
-
-  /*
-   * Base destination = top of target.
-   *
-   * extraOffset is positive when we deliberately
-   * want to scroll further INTO the target section.
-   */
-  const requestedY =
-    rect.top +
-    startY +
-    extraOffset;
-
-  const maxY =
-    Math.max(
-      0,
-      document.documentElement.scrollHeight -
-      window.innerHeight
-    );
-
-  const targetY =
-    Math.min(
-      maxY,
-      Math.max(
-        0,
-        requestedY
-      )
-    );
-
-  const distance =
-    targetY -
-    startY;
-
-  if (
-    Math.abs(distance) < 1
+  function smoothScrollTo(
+    target,
+    extraOffset = 0
   ) {
-    window.scrollTo(
-      0,
-      targetY
-    );
+    if (!target) {
+      return;
+    }
 
-    return;
-  }
-
-  const duration =
-    Math.min(
-      1250,
-      Math.max(
-        700,
-        Math.abs(distance) * 0.55
-      )
-    );
-
-  const startTime =
-    performance.now();
-
-  const easeInOutCubic =
-    (t) =>
-      t < 0.5
-        ? 4 * t * t * t
-        : 1 -
-          Math.pow(
-            -2 * t + 2,
-            3
-          ) / 2;
-
-  const animate =
-    (now) => {
-      if (
-        token !==
-        smoothScrollToken
-      ) {
-        return;
-      }
-
-      const progress =
-        Math.min(
-          1,
-          (
-            now -
-            startTime
-          ) /
-          duration
-        );
-
-      const eased =
-        easeInOutCubic(
-          progress
-        );
-
-      const currentY =
-        startY +
-        distance *
-        eased;
-
-      window.scrollTo(
-        0,
-        currentY
+    /*
+     * Stop an existing animation.
+     */
+    if (
+      smoothScrollFrame !==
+      null
+    ) {
+      cancelAnimationFrame(
+        smoothScrollFrame
       );
 
-      if (
-        progress <
-        1
-      ) {
-        smoothScrollFrame =
-          requestAnimationFrame(
-            animate
-          );
-      } else {
-        smoothScrollFrame =
-          null;
+      smoothScrollFrame =
+        null;
+    }
 
+    smoothScrollToken +=
+      1;
+
+    const token =
+      smoothScrollToken;
+
+    const startY =
+      window.scrollY ||
+      window.pageYOffset ||
+      0;
+
+    const rect =
+      target.getBoundingClientRect();
+
+    /*
+     * Base destination = target's document position.
+     *
+     * Positive extraOffset means:
+     * scroll further INTO the target section.
+     */
+    const requestedY =
+      rect.top +
+      startY +
+      extraOffset;
+
+    const maxY =
+      Math.max(
+        0,
+        document.documentElement.scrollHeight -
+        window.innerHeight
+      );
+
+    const targetY =
+      Math.min(
+        maxY,
+        Math.max(
+          0,
+          requestedY
+        )
+      );
+
+    const distance =
+      targetY -
+      startY;
+
+    if (
+      Math.abs(distance) <
+      1
+    ) {
+      window.scrollTo(
+        0,
+        targetY
+      );
+
+      return;
+    }
+
+    /*
+     * Scale duration with distance.
+     */
+    const duration =
+      Math.min(
+        1250,
+        Math.max(
+          700,
+          Math.abs(distance) *
+          0.55
+        )
+      );
+
+    const startTime =
+      performance.now();
+
+    const easeInOutCubic =
+      (t) =>
+        t < 0.5
+          ? 4 * t * t * t
+          : 1 -
+            Math.pow(
+              -2 * t + 2,
+              3
+            ) / 2;
+
+    const animate =
+      (now) => {
+        if (
+          token !==
+          smoothScrollToken
+        ) {
+          return;
+        }
+
+        const progress =
+          Math.min(
+            1,
+            (
+              now -
+              startTime
+            ) /
+            duration
+          );
+
+        const eased =
+          easeInOutCubic(
+            progress
+          );
+
+        const currentY =
+          startY +
+          distance *
+          eased;
+
+        /*
+         * Numeric scrollTo deliberately bypasses
+         * native browser smooth-scroll behavior.
+         */
         window.scrollTo(
           0,
-          targetY
+          currentY
         );
-      }
-    };
 
-  smoothScrollFrame =
-    requestAnimationFrame(
-      animate
-    );
-}
+        if (
+          progress <
+          1
+        ) {
+          smoothScrollFrame =
+            requestAnimationFrame(
+              animate
+            );
+        } else {
+          smoothScrollFrame =
+            null;
+
+          /*
+           * Final exact position.
+           */
+          window.scrollTo(
+            0,
+            targetY
+          );
+        }
+      };
+
+    smoothScrollFrame =
+      requestAnimationFrame(
+        animate
+      );
+  }
 
   function closeMobileMenu() {
     document.body.classList.remove(
@@ -2244,12 +2318,16 @@ function smoothScrollTo(
     }
   }
 
+  /* ============================================================
+     INTERNAL LINK SCROLLING
+     ============================================================ */
+
   function setupSmoothScrolling() {
     /*
-     * ONE delegated capture-phase listener owns all internal
-     * anchor scrolling. This prevents accidental native jumps
-     * and prevents multiple scripts from fighting over the same
-     * navigation click.
+     * ONE delegated listener handles all internal links.
+     *
+     * Capture phase is used so the browser's native anchor
+     * navigation is intercepted before the default jump.
      */
     document.addEventListener(
       'click',
@@ -2302,24 +2380,40 @@ function smoothScrollTo(
         }
 
         /*
-         * Stop the native instant jump.
+         * Prevent browser's native jump.
          */
         event.preventDefault();
 
         /*
-         * Close mobile navigation before scrolling.
+         * Close mobile menu first.
          */
         closeMobileMenu();
 
         /*
-         * Start exactly one animation.
+         * Per-link offset.
+         *
+         * Begin the Celebration has:
+         * data-scroll-offset="160"
+         *
+         * Normal links have no offset.
+         */
+        const extraOffset =
+          Number(
+            link.dataset.scrollOffset ||
+            0
+          );
+
+        /*
+         * Perform exactly one animated scroll.
          */
         smoothScrollTo(
-          target
+          target,
+          extraOffset
         );
 
         /*
-         * Change the URL without causing a second scroll.
+         * Update URL without
+         * causing another scroll.
          */
         try {
           history.replaceState(
@@ -2402,6 +2496,7 @@ function smoothScrollTo(
           )
         ) {
           closeMobileMenu();
+
           menuButton?.focus();
         }
       }
@@ -2508,6 +2603,9 @@ function smoothScrollTo(
             clearInterval(
               timer
             );
+
+            timer =
+              null;
           }
 
           return;
@@ -2668,6 +2766,10 @@ function smoothScrollTo(
         1000
       );
 
+    /*
+     * Expand when the actual countdown section
+     * reaches the viewport.
+     */
     if (
       'IntersectionObserver'
       in window
@@ -2685,7 +2787,9 @@ function smoothScrollTo(
             );
           },
           {
-            threshold: 0.18,
+            threshold:
+              0.18,
+
             rootMargin:
               '-10% 0px -12% 0px'
           }
@@ -2729,33 +2833,33 @@ function smoothScrollTo(
 
     const sync =
       () => {
-        const dark =
+        const isDark =
           document.documentElement
             .dataset.theme !==
           'light';
 
         button.setAttribute(
           'aria-label',
-          dark
+          isDark
             ? 'Switch to light mode'
             : 'Switch to dark mode'
         );
 
         button.setAttribute(
           'aria-pressed',
-          String(!dark)
+          String(!isDark)
         );
 
         if (icon) {
           icon.textContent =
-            dark
+            isDark
               ? '☼'
               : '☾';
         }
 
         if (label) {
           label.textContent =
-            dark
+            isDark
               ? 'Light Mode'
               : 'Dark Mode';
         }
@@ -2825,11 +2929,7 @@ function smoothScrollTo(
 
         ${invitationCardHTML()}
 
-        ${
-          show('timeline')
-            ? timelineHTML()
-            : ''
-        }
+        ${timelineHTML()}
 
         ${
           show('events')
