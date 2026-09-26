@@ -1746,3 +1746,328 @@ body,
 .hero__scroll.hero-anim {
   animation-name: heroScrollIn;
 }
+/* ============================================================
+   PA LAK & NALIN — EXPLICIT SITE THEME
+   Dark mode is the default.
+   ============================================================ */
+
+:root {
+  --dark-bg: #1c1a17;
+  --dark-surface: #211f1b;
+  --dark-card: #24211c;
+  --dark-text: #f2ede2;
+  --dark-muted: #b9b1a5;
+
+  --light-bg: #faf6ee;
+  --light-surface: #fffdf8;
+  --light-card: #f4ecdc;
+  --light-text: #43403a;
+  --light-muted: #6f6a61;
+}
+
+/* ------------------------------------------------------------
+   DARK — DEFAULT
+   ------------------------------------------------------------ */
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+
+  --ivory: #1c1a17;
+  --cream: #24211c;
+  --warmWhite: #211f1b;
+
+  --ink: #f2ede2;
+  --inkSoft: #b9b1a5;
+
+  --gold: #c2a15c;
+  --goldDeep: #d0b36b;
+
+  --blush: #c98f98;
+  --blushDeep: #d79aa2;
+
+  --sage: #8fa07b;
+  --leaf: #7d9270;
+
+  --hairline: 1px solid rgba(194,161,92,.38);
+
+  --shadow-soft:
+    0 18px 50px rgba(0,0,0,.22);
+
+  --shadow-card:
+    0 24px 70px rgba(0,0,0,.35);
+}
+
+/* ------------------------------------------------------------
+   LIGHT
+   ------------------------------------------------------------ */
+
+html[data-theme="light"] {
+  color-scheme: light;
+
+  --ivory: #faf6ee;
+  --cream: #f4ecdc;
+  --warmWhite: #fffdf8;
+
+  --ink: #43403a;
+  --inkSoft: #6f6a61;
+
+  --gold: #c2a15c;
+  --goldDeep: #a5823f;
+
+  --blush: #e3a7ad;
+  --blushDeep: #c97f87;
+
+  --sage: #a3b18a;
+  --leaf: #7d9270;
+
+  --hairline: 1px solid rgba(194,161,92,.45);
+
+  --shadow-soft:
+    0 18px 50px rgba(90,72,40,.10);
+
+  --shadow-card:
+    0 24px 70px rgba(90,72,40,.14);
+}
+
+/* ------------------------------------------------------------
+   THEME TRANSITION
+   ------------------------------------------------------------ */
+
+html,
+body,
+.nav,
+.mobile-menu,
+.section,
+.footer,
+.timeline,
+.story,
+.countdown,
+.venue,
+.event-card,
+.timeline__card,
+.music-control,
+.theme-toggle {
+  transition:
+    background-color .45s ease,
+    color .45s ease,
+    border-color .45s ease,
+    box-shadow .45s ease;
+}
+
+/* ------------------------------------------------------------
+   BODY
+   ------------------------------------------------------------ */
+
+html[data-theme="dark"] body {
+  background: #1c1a17 !important;
+  color: #f2ede2 !important;
+}
+
+html[data-theme="light"] body {
+  background: #faf6ee !important;
+  color: #43403a !important;
+}
+
+/* ------------------------------------------------------------
+   NAVIGATION
+   ------------------------------------------------------------ */
+
+html[data-theme="dark"] .nav--scrolled,
+html[data-theme="dark"] body.menu-open .nav {
+  background: rgba(28,26,23,.94) !important;
+  box-shadow:
+    0 1px 0 rgba(194,161,92,.35),
+    0 12px 34px rgba(0,0,0,.25) !important;
+}
+
+html[data-theme="dark"] .mobile-menu {
+  background: #1c1a17 !important;
+  color: #f2ede2 !important;
+}
+
+html[data-theme="dark"] .mobile-menu a {
+  color: #f2ede2 !important;
+}
+
+/* ------------------------------------------------------------
+   INVITATION CARD
+   ------------------------------------------------------------ */
+
+/*
+ * Removes the old navy-blue background completely.
+ */
+
+html[data-theme="dark"] .invitation-card-section {
+  background:
+    radial-gradient(
+      circle at 15% 20%,
+      rgba(255,255,255,.025) 0 1px,
+      transparent 1.5px
+    ),
+    radial-gradient(
+      circle at 80% 70%,
+      rgba(255,255,255,.018) 0 1px,
+      transparent 1.5px
+    ),
+    #1c1a17 !important;
+}
+
+html[data-theme="light"] .invitation-card-section {
+  background:
+    radial-gradient(
+      circle at 15% 20%,
+      rgba(90,72,40,.025) 0 1px,
+      transparent 1.5px
+    ),
+    #faf6ee !important;
+}
+
+/* Dark invitation card */
+
+html[data-theme="dark"] .invitation-card {
+  background:
+    radial-gradient(
+      circle at 20% 15%,
+      rgba(194,161,92,.045) 0 1px,
+      transparent 1.5px
+    ),
+    #24211c !important;
+
+  color: #f2ede2 !important;
+
+  box-shadow:
+    0 0 0 5px #1c1a17,
+    0 0 0 7px rgba(194,161,92,.92),
+    0 24px 80px rgba(0,0,0,.42) !important;
+}
+
+/* Dark invitation typography */
+
+html[data-theme="dark"] .invitation-card__host,
+html[data-theme="dark"] .invitation-card__name,
+html[data-theme="dark"] .invitation-card__parents,
+html[data-theme="dark"] .invitation-card__detail,
+html[data-theme="dark"] .invitation-card__grand {
+  color: #f2ede2 !important;
+}
+
+html[data-theme="dark"] .invitation-card__host-note,
+html[data-theme="dark"] .invitation-card__relationship {
+  color: #d79aa2 !important;
+}
+
+html[data-theme="dark"] .invitation-card__with {
+  color: #d0b36b !important;
+}
+
+html[data-theme="dark"] .invitation-card__om,
+html[data-theme="dark"] .invitation-card__ganesh {
+  color: #d79aa2 !important;
+}
+
+/* ------------------------------------------------------------
+   MUSIC BUTTON
+   ------------------------------------------------------------ */
+
+html[data-theme="dark"] .music-control {
+  background: rgba(36,33,28,.94) !important;
+  color: #f2ede2 !important;
+
+  box-shadow:
+    0 12px 30px rgba(0,0,0,.35) !important;
+}
+
+html[data-theme="light"] .music-control {
+  background: rgba(255,253,248,.94) !important;
+}
+
+/* ------------------------------------------------------------
+   FOOTER THEME TOGGLE
+   ------------------------------------------------------------ */
+
+.theme-toggle {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+
+  margin-top: 34px;
+
+  min-height: 38px;
+  padding: 8px 16px;
+
+  border:
+    1px solid rgba(194,161,92,.55);
+
+  border-radius: 999px;
+
+  background: transparent;
+
+  color: var(--inkSoft);
+
+  font-family: var(--sans);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+
+  cursor: pointer;
+
+  transition:
+    background-color .25s ease,
+    color .25s ease,
+    border-color .25s ease,
+    transform .25s ease;
+}
+
+.theme-toggle:hover {
+  transform: translateY(-1px);
+  border-color: var(--gold);
+  color: var(--goldDeep);
+}
+
+.theme-toggle:active {
+  transform: translateY(0);
+}
+
+.theme-toggle__icon {
+  font-size: 15px;
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+.theme-toggle__label {
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------------
+   HERO SCROLL — KEEP CENTERED
+   ------------------------------------------------------------ */
+
+.hero__scroll {
+  left: 50% !important;
+  right: auto !important;
+  transform: translateX(-50%) !important;
+}
+
+@keyframes heroScrollIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+.hero__scroll.hero-anim {
+  animation-name: heroScrollIn;
+}
+html[data-theme="dark"],
+html[data-theme="light"] {
+  forced-color-adjust: none;
+  -webkit-text-size-adjust: 100%;
+}
