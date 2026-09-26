@@ -1,24 +1,10 @@
 (() => {
-  /*
-   * Site theme is explicit and dark by default.
-   * The website should not inherit Android/Brave dark-mode behavior.
-   */
-  const savedTheme =
-    localStorage.getItem('palak-theme');
+  /* ============================================================
+     PALAK & NALIN — WEDDING INVITATION
+     ============================================================ */
 
-  const initialTheme =
-    savedTheme === 'light'
-      ? 'light'
-      : 'dark';
-
-  document.documentElement.dataset.theme =
-    initialTheme;
-
-  document.documentElement.style.colorScheme =
-    initialTheme;
-
-  const cfg = window.INVITE_CONFIG || {};
   const $ = (selector) => document.querySelector(selector);
+
   const esc = (value) =>
     String(value ?? '').replace(/[&<>"']/g, (char) => ({
       '&': '&amp;',
@@ -28,19 +14,32 @@
       "'": '&#039;'
     }[char]));
 
-  // ============================================================
-  // THEME
-  // ============================================================
+  const cfg = window.INVITE_CONFIG || {};
+
+  /* ------------------------------------------------------------
+     THEME
+     ------------------------------------------------------------ */
+
+  let savedTheme = null;
+
+  try {
+    savedTheme = localStorage.getItem('palak-theme');
+  } catch {}
+
+  const initialTheme =
+    savedTheme === 'light' ? 'light' : 'dark';
+
+  document.documentElement.dataset.theme = initialTheme;
+  document.documentElement.style.colorScheme = initialTheme;
 
   function applyTheme() {
+    /*
+     * Theme colours are controlled by CSS.
+     * Only non-theme config variables are copied inline.
+     */
     const root = document.documentElement;
 
-    /*
-     * These variables have deliberate light/dark values in styles.css.
-     * Do not write the old config palette inline because inline custom
-     * properties would override the theme selectors.
-     */
-    const themeControlledKeys = new Set([
+    const excluded = new Set([
       'ivory',
       'cream',
       'warmWhite',
@@ -58,27 +57,30 @@
     ]);
 
     Object.entries(cfg.colors || {}).forEach(([key, value]) => {
-      if (!themeControlledKeys.has(key)) {
+      if (!excluded.has(key)) {
         root.style.setProperty(`--${key}`, value);
       }
     });
-
-    const background =
-      cfg.assets?.background ||
-      cfg.background ||
-      '';
-
-    if (background) {
-      document.body.style.setProperty(
-        '--invite-background',
-        `url("${background}")`
-      );
-    }
   }
 
-  // ============================================================
-  // METADATA
-  // ============================================================
+  function setTheme(theme) {
+    const next =
+      theme === 'light' ? 'light' : 'dark';
+
+    document.documentElement.dataset.theme = next;
+    document.documentElement.style.colorScheme = next;
+
+    try {
+      localStorage.setItem(
+        'palak-theme',
+        next
+      );
+    } catch {}
+  }
+
+  /* ------------------------------------------------------------
+     METADATA
+     ------------------------------------------------------------ */
 
   function applyMetadata() {
     const title =
@@ -87,21 +89,13 @@
     const description =
       `${cfg.dateLabel || ''} · ${cfg.city || ''} · ${cfg.venue || ''}`;
 
-    const baseUrl = (
-      cfg.siteUrl ||
-      window.location.href
-    )
-      .replace(/#.*$/, '')
-      .replace(/\/$/, '');
-
-    const pageUrl = `${baseUrl}/`;
-
-    const shareImage = cfg.assets?.shareCard
-      ? new URL(
-          cfg.assets.shareCard,
-          `${baseUrl}/`
-        ).href
-      : '';
+    const baseUrl =
+      (
+        cfg.siteUrl ||
+        window.location.href
+      )
+        .replace(/#.*$/, '')
+        .replace(/\/$/, '');
 
     document.title = title;
 
@@ -139,16 +133,23 @@
       description
     );
 
-    setMeta(
-      'meta[property="og:image"]',
-      'content',
-      shareImage
-    );
+    if (cfg.assets?.shareCard) {
+      try {
+        setMeta(
+          'meta[property="og:image"]',
+          'content',
+          new URL(
+            cfg.assets.shareCard,
+            `${baseUrl}/`
+          ).href
+        );
+      } catch {}
+    }
 
     setMeta(
       'meta[property="og:url"]',
       'content',
-      pageUrl
+      `${baseUrl}/`
     );
 
     const canonical =
@@ -157,16 +158,14 @@
       );
 
     if (canonical) {
-      canonical.setAttribute(
-        'href',
-        pageUrl
-      );
+      canonical.href =
+        `${baseUrl}/`;
     }
   }
 
-  // ============================================================
-  // SVG DECORATIONS
-  // ============================================================
+  /* ------------------------------------------------------------
+     DECORATIVE SVG
+     ------------------------------------------------------------ */
 
   function svgDefsHTML() {
     return `
@@ -314,525 +313,9 @@
     </svg>
   `;
 
-  // ============================================================
-  // EXTRA CSS
-  // ============================================================
-
-  function installEnhancementStyles() {
-    if (
-      document.getElementById(
-        'wedding-enhancement-styles'
-      )
-    ) {
-      return;
-    }
-
-    const style =
-      document.createElement('style');
-
-    style.id =
-      'wedding-enhancement-styles';
-
-    style.textContent = `
-
-      /* ======================================================
-         NP LOGO
-         ====================================================== */
-
-      .nav__logo {
-        width: 52px;
-        height: 52px;
-        display: block;
-        object-fit: contain;
-      }
-
-      @media (max-width: 700px) {
-        .nav__logo {
-          width: 42px;
-          height: 42px;
-        }
-      }
-
-      /* ======================================================
-         HERO BUTTON
-         ====================================================== */
-
-      .hero__begin {
-        appearance: none;
-        border: 1px solid rgba(194,161,92,.72);
-        background: var(--button-bg, rgba(255,253,248,.90));
-        color: var(--button-text, var(--ink, #43403a));
-        min-height: 48px;
-        padding: 12px 28px;
-        margin-top: 30px;
-        border-radius: 999px;
-        font-family: var(--sans, sans-serif);
-        font-size: 10px;
-        font-weight: 500;
-        letter-spacing: .22em;
-        text-transform: uppercase;
-        box-shadow:
-          0 12px 35px rgba(80,60,30,.10);
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        transition:
-          transform .25s ease,
-          box-shadow .25s ease,
-          background-color .25s ease,
-          color .25s ease;
-      }
-
-      .hero__begin:hover {
-        transform: translateY(-2px);
-        background: var(--button-bg-hover, rgba(255,253,248,.98));
-        box-shadow:
-          0 16px 42px rgba(80,60,30,.16);
-      }
-
-      .hero__begin:active {
-        transform: translateY(0);
-      }
-
-      @media (max-width: 600px) {
-        .hero__begin {
-          min-height: 46px;
-          padding: 11px 22px;
-          font-size: 9px;
-        }
-      }
-
-      /* ======================================================
-         INVITATION CARD
-         ====================================================== */
-
-      .invitation-card-section {
-        position: relative;
-        overflow: hidden;
-        padding:
-          clamp(55px, 8vw, 100px)
-          14px;
-        background:
-          radial-gradient(
-            circle at 15% 20%,
-            rgba(255,255,255,.025) 0 1px,
-            transparent 1.5px
-          ),
-          radial-gradient(
-            circle at 80% 70%,
-            rgba(255,255,255,.018) 0 1px,
-            transparent 1.5px
-          ),
-          var(--invite-section-bg, #1c1a17);
-        background-size:
-          18px 18px,
-          23px 23px,
-          auto;
-      }
-
-      .invitation-card__wrapper {
-        width: min(100%, 900px);
-        margin: 0 auto;
-        position: relative;
-        z-index: 1;
-      }
-
-      .invitation-card {
-        position: relative;
-        overflow: hidden;
-        padding:
-          clamp(48px, 6vw, 75px)
-          clamp(22px, 7vw, 86px)
-          clamp(44px, 6vw, 68px);
-
-        background:
-          radial-gradient(
-            circle at 20% 15%,
-            rgba(194,161,92,.045) 0 1px,
-            transparent 1.5px
-          ),
-          radial-gradient(
-            circle at 80% 85%,
-            rgba(194,161,92,.035) 0 1px,
-            transparent 1.5px
-          ),
-          var(--invite-card-bg, #24211c);
-
-        background-size:
-          12px 12px,
-          14px 14px,
-          auto;
-
-        color: var(--invite-card-text, #f2ede2);
-        text-align: center;
-        border: 2px solid #c2a15c;
-        border-radius: 24px;
-
-        box-shadow:
-          0 0 0 5px var(--invite-card-edge, #1c1a17),
-          0 0 0 7px rgba(194,161,92,.92),
-          0 24px 80px rgba(0,0,0,.34);
-      }
-
-      .invitation-card::before {
-        content: "";
-        position: absolute;
-        inset: 8px;
-        border:
-          1px solid rgba(194,161,92,.74);
-        border-radius: 16px;
-        pointer-events: none;
-      }
-
-      .invitation-card__corner {
-        position: absolute;
-        width: 120px;
-        height: 120px;
-        color: var(--invite-green, #738c68);
-        opacity: .94;
-        pointer-events: none;
-      }
-
-      .invitation-card__corner--tl {
-        top: 5px;
-        left: 5px;
-        transform: rotate(-20deg);
-      }
-
-      .invitation-card__corner--tr {
-        top: 5px;
-        right: 5px;
-        transform:
-          scaleX(-1)
-          rotate(-20deg);
-      }
-
-      .invitation-card__corner--bl {
-        bottom: 5px;
-        left: 5px;
-        transform:
-          scaleY(-1)
-          rotate(-20deg);
-      }
-
-      .invitation-card__corner--br {
-        bottom: 5px;
-        right: 5px;
-        transform:
-          scale(-1)
-          rotate(-20deg);
-      }
-
-      .invitation-card__om {
-        margin:
-          0 auto 9px;
-        font-family:
-          Georgia,
-          "Times New Roman",
-          serif;
-        font-size:
-          clamp(36px, 6vw, 52px);
-        line-height: 1;
-        color: var(--invite-red, #ce4060);
-      }
-
-      .invitation-card__ganesh {
-        margin: 0;
-        font-family:
-          var(--serif, Georgia, serif);
-        font-size:
-          clamp(23px, 4vw, 34px);
-        color: var(--invite-red, #ce4060);
-        line-height: 1.2;
-      }
-
-      .invitation-card__host {
-        margin-top:
-          clamp(28px, 4vw, 38px);
-        font-family:
-          Georgia,
-          "Times New Roman",
-          serif;
-        font-size:
-          clamp(20px, 3.5vw, 29px);
-        line-height: 1.35;
-        color: var(--invite-card-text, #f2ede2);
-      }
-
-      .invitation-card__host span {
-        display: block;
-      }
-
-      .invitation-card__host-note {
-        margin:
-          24px auto 0;
-        max-width: 610px;
-        font-family:
-          Georgia,
-          "Times New Roman",
-          serif;
-        font-size:
-          clamp(15px, 2.2vw, 20px);
-        line-height: 1.55;
-        font-style: italic;
-        color: var(--invite-red, #ca3c5a);
-      }
-
-      .invitation-card__grand {
-        margin:
-          7px 0 0;
-        font-family:
-          var(--sans, sans-serif);
-        font-weight: 500;
-        letter-spacing:
-          .27em;
-        font-size: 10px;
-        color: var(--invite-card-muted, #e0d7c7);
-      }
-
-      .invitation-card__name {
-        margin:
-          20px 0 0;
-        font-family:
-          var(--serif, Georgia, serif);
-        font-size:
-          clamp(38px, 7vw, 64px);
-        line-height: .98;
-        font-weight: 500;
-        color: var(--invite-card-text, #f2ede2);
-      }
-
-      .invitation-card__relationship {
-        margin:
-          12px 0 0;
-        font-family:
-          Georgia,
-          "Times New Roman",
-          serif;
-        font-size:
-          clamp(14px, 2vw, 18px);
-        font-style: italic;
-        color: var(--invite-red, #d04661);
-      }
-
-      .invitation-card__parents {
-        margin:
-          3px 0 0;
-        font-family:
-          Georgia,
-          "Times New Roman",
-          serif;
-        font-size:
-          clamp(17px, 2.8vw, 22px);
-        line-height: 1.35;
-        color: var(--invite-card-text, #f2ede2);
-      }
-
-      .invitation-card__with {
-        margin:
-          15px 0 5px;
-        font-family:
-          var(--sans, sans-serif);
-        font-size: 10px;
-        font-weight: 600;
-        letter-spacing:
-          .42em;
-        color: var(--invite-gold, #d2a33e);
-      }
-
-      .invitation-card__divider {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 12px;
-        width: min(350px, 76%);
-        margin:
-          24px auto 18px;
-      }
-
-      .invitation-card__divider::before,
-      .invitation-card__divider::after {
-        content: "";
-        height: 1px;
-        flex: 1;
-        background: var(--invite-line, #d8ad50);
-      }
-
-      .invitation-card__divider-mark {
-        width: 10px;
-        height: 10px;
-        border:
-          1px solid var(--invite-line, #d8ad50);
-        transform: rotate(45deg);
-        position: relative;
-      }
-
-      .invitation-card__divider-mark::after {
-        content: "";
-        position: absolute;
-        inset: 2px;
-        background: var(--invite-line, #d8ad50);
-      }
-
-      .invitation-card__details {
-        display: grid;
-        grid-template-columns:
-          1fr
-          auto
-          1fr;
-        align-items: center;
-        gap:
-          clamp(12px, 4vw, 32px);
-        max-width: 640px;
-        margin:
-          31px auto 0;
-      }
-
-      .invitation-card__detail {
-        font-family:
-          Georgia,
-          "Times New Roman",
-          serif;
-        font-size:
-          clamp(15px, 2.3vw, 19px);
-        line-height: 1.45;
-        color: var(--invite-card-text, #f2ede2);
-      }
-
-      .invitation-card__detail em {
-        display: block;
-        margin-top: 2px;
-        font-size: .88em;
-        color: var(--invite-red, #c84460);
-      }
-
-      .invitation-card__detail-divider {
-        width: 38px;
-        height: 1px;
-        background: var(--invite-line, #d8ad50);
-      }
-
-      .invitation-card__monogram {
-        display: block;
-        width: 88px;
-        height: 88px;
-        object-fit: contain;
-        margin:
-          26px auto 0;
-      }
-
-      @media (max-width: 600px) {
-        .invitation-card-section {
-          padding-left: 10px;
-          padding-right: 10px;
-        }
-
-        .invitation-card {
-          padding:
-            42px 18px 42px;
-          border-radius: 18px;
-          box-shadow:
-            0 0 0 4px var(--invite-card-edge, #1c1a17),
-            0 0 0 6px rgba(194,161,92,.92),
-            0 18px 55px rgba(0,0,0,.30);
-        }
-
-        .invitation-card__corner {
-          width: 84px;
-          height: 84px;
-        }
-
-        .invitation-card__details {
-          grid-template-columns: 1fr;
-          gap: 12px;
-        }
-
-        .invitation-card__detail-divider {
-          width: 32px;
-          margin: 2px auto;
-        }
-
-        .invitation-card__monogram {
-          width: 76px;
-          height: 76px;
-        }
-      }
-
-      /* ======================================================
-         MUSIC CONTROL
-         ====================================================== */
-
-      .music-control {
-        position: fixed;
-        z-index: 100;
-        right: 18px;
-        bottom: 18px;
-
-        width: 44px;
-        height: 44px;
-
-        display: grid;
-        place-items: center;
-
-        border:
-          1px solid rgba(194,161,92,.68);
-
-        border-radius: 50%;
-
-        background:
-          var(--music-bg, rgba(255,253,248,.94));
-
-        color:
-          var(--music-text, var(--ink, #43403a));
-
-        box-shadow:
-          0 12px 30px rgba(45,35,20,.15);
-
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-
-        cursor: pointer;
-
-        transition:
-          transform .25s ease,
-          box-shadow .25s ease,
-          background-color .25s ease,
-          color .25s ease;
-      }
-
-      .music-control:hover {
-        transform: translateY(-2px);
-        box-shadow:
-          0 16px 36px rgba(45,35,20,.20);
-      }
-
-      .music-control__icon {
-        font-size: 15px;
-        line-height: 1;
-      }
-
-      .music-control.is-playing {
-        box-shadow:
-          0 0 0 4px rgba(194,161,92,.12),
-          0 12px 32px rgba(45,35,20,.18);
-      }
-
-      @media (max-width: 600px) {
-        .music-control {
-          width: 42px;
-          height: 42px;
-          right: 12px;
-          bottom: 12px;
-        }
-      }
-
-    `;
-
-    document.head.appendChild(style);
-  }
-
-  // ============================================================
-  // NAVIGATION
-  // ============================================================
+  /* ------------------------------------------------------------
+     NAVIGATION
+     ------------------------------------------------------------ */
 
   function navHTML() {
     return `
@@ -844,13 +327,20 @@
         <a
           class="nav__brand"
           href="#home"
-          data-testid="nav-brand"
-          aria-label="${esc(cfg.bride)} and ${esc(cfg.groom)} — back to top"
+          aria-label="${esc(
+            cfg.bride || 'Palak'
+          )} and ${esc(
+            cfg.groom || 'Nalin'
+          )} — back to top"
         >
           <img
             class="nav__logo"
             src="assets/favicon.png"
-            alt="${esc(cfg.bride)} and ${esc(cfg.groom)}"
+            alt="${esc(
+              cfg.bride || 'Palak'
+            )} and ${esc(
+              cfg.groom || 'Nalin'
+            )}"
           >
         </a>
 
@@ -858,43 +348,19 @@
           class="nav__links"
           aria-label="Main navigation"
         >
-          <a
-            href="#home"
-            data-testid="nav-home"
-          >
-            Home
-          </a>
-
-          <a
-            href="#story"
-            data-testid="nav-story"
-          >
-            Our Story
-          </a>
-
-          <a
-            href="#events"
-            data-testid="nav-events"
-          >
-            Events
-          </a>
-
-          <a
-            href="#venue"
-            data-testid="nav-venue"
-          >
-            Venue
-          </a>
+          <a href="#home">Home</a>
+          <a href="#story">Our Story</a>
+          <a href="#events">Events</a>
+          <a href="#venue">Venue</a>
         </nav>
 
         <button
           class="nav__burger"
           id="menuBtn"
-          data-testid="mobile-menu-button"
+          type="button"
           aria-label="Open menu"
           aria-expanded="false"
           aria-controls="mobileMenu"
-          type="button"
         >
           <span></span>
           <span></span>
@@ -906,46 +372,20 @@
       <div
         class="mobile-menu"
         id="mobileMenu"
-        data-testid="mobile-menu"
       >
         <nav aria-label="Mobile navigation">
-
-          <a
-            href="#home"
-            data-testid="mobile-nav-home"
-          >
-            Home
-          </a>
-
-          <a
-            href="#story"
-            data-testid="mobile-nav-story"
-          >
-            Our Story
-          </a>
-
-          <a
-            href="#events"
-            data-testid="mobile-nav-events"
-          >
-            Events
-          </a>
-
-          <a
-            href="#venue"
-            data-testid="mobile-nav-venue"
-          >
-            Venue
-          </a>
-
+          <a href="#home">Home</a>
+          <a href="#story">Our Story</a>
+          <a href="#events">Events</a>
+          <a href="#venue">Venue</a>
         </nav>
       </div>
     `;
   }
 
-  // ============================================================
-  // HERO
-  // ============================================================
+  /* ------------------------------------------------------------
+     HERO
+     ------------------------------------------------------------ */
 
   function heroHTML() {
     return `
@@ -954,21 +394,26 @@
         id="home"
       >
 
-        ${
-          cfg.assets?.background
-            ? `
-              <div
-                class="hero__photo"
-                aria-hidden="true"
-              ></div>
-            `
-            : ''
-        }
+        <div
+          class="hero__photo"
+          aria-hidden="true"
+        ></div>
 
-        ${sprig('hero__sprig hero__sprig--tl')}
-        ${sprig('hero__sprig hero__sprig--tr')}
-        ${sprig('hero__sprig hero__sprig--bl')}
-        ${sprig('hero__sprig hero__sprig--br')}
+        ${sprig(
+          'hero__sprig hero__sprig--tl'
+        )}
+
+        ${sprig(
+          'hero__sprig hero__sprig--tr'
+        )}
+
+        ${sprig(
+          'hero__sprig hero__sprig--bl'
+        )}
+
+        ${sprig(
+          'hero__sprig hero__sprig--br'
+        )}
 
         <div
           class="hero__frame"
@@ -979,92 +424,116 @@
 
           <p
             class="hero__eyebrow hero-anim"
-            style="--d:.15s"
+            style="--d:.10s"
           >
-            ${esc(cfg.heroEyebrow)}
+            ${esc(
+              cfg.heroEyebrow ||
+              'Lucknow · 03 December 2026'
+            )}
           </p>
 
-       <h1
-  class="hero__names hero-anim"
-  style="--d:.35s"
->
-  <span class="hero__name">
-    ${esc(cfg.bride)}
-  </span>
+          <h1
+            class="hero__names hero-anim"
+            style="--d:.25s"
+          >
+            <span class="hero__name">
+              ${esc(
+                cfg.bride || 'Palak'
+              )}
+            </span>
 
-  <span
-    class="hero__weds"
-    aria-hidden="true"
-  >
-    weds
-  </span>
+            <span
+              class="hero__weds"
+              aria-hidden="true"
+            >
+              weds
+            </span>
 
-  <span class="hero__name">
-    ${esc(cfg.groom)}
-  </span>
-</h1>
+            <span class="hero__name">
+              ${esc(
+                cfg.groom || 'Nalin'
+              )}
+            </span>
+          </h1>
 
           <p
             class="hero__invite hero-anim"
-            style="--d:.55s"
+            style="--d:.42s"
           >
-            ${esc(cfg.heroInvite)}
+            ${esc(
+              cfg.heroInvite ||
+              'Together with their families'
+            )}
           </p>
 
           <svg
             class="hero__divider hero-anim"
-            style="--d:.7s"
+            style="--d:.54s"
             aria-hidden="true"
-            focusable="false"
           >
             <use href="#orn-divider"></use>
           </svg>
 
           <p
             class="hero__date hero-anim"
-            style="--d:.85s"
+            style="--d:.66s"
           >
-            ${esc(cfg.dateLabel)}
+            ${esc(
+              cfg.dateLabel ||
+              '03 DECEMBER 2026'
+            )}
+
             <span>·</span>
+
             ${esc(
               String(
-                cfg.city || ''
+                cfg.city ||
+                'LUCKNOW'
               ).toUpperCase()
             )}
           </p>
 
           <p
             class="hero__line hero-anim"
-            style="--d:1s"
+            style="--d:.78s"
           >
-            ${esc(cfg.heroLine)}
+            ${esc(
+              cfg.heroLine ||
+              'Awaiting to celebrate with you.'
+            )}
           </p>
 
           <div
             class="hero__nalaks hero-anim"
-            style="--d:1.08s"
+            style="--d:.90s"
             aria-label="NALAKS"
           >
             <img
               class="hero__nalaks-logo hero__nalaks-logo--dark"
-              src="${esc(cfg.assets?.nalaksWhiteLogo || 'assets/nalaks-white-logo.webp')}"
+              src="${esc(
+                cfg.assets?.nalaksWhiteLogo ||
+                'assets/nalaks-white-logo.webp'
+              )}"
               alt="NALAKS"
               decoding="async"
-            >
+            />
+
             <img
               class="hero__nalaks-logo hero__nalaks-logo--light"
-              src="${esc(cfg.assets?.nalaksBlueLogo || 'assets/nalaks-blue-logo.webp')}"
+              src="${esc(
+                cfg.assets?.nalaksBlueLogo ||
+                'assets/nalaks-blue-logo.webp'
+              )}"
               alt="NALAKS"
               decoding="async"
-            >
+            />
           </div>
 
           <button
             type="button"
             class="hero__begin hero-anim"
             id="beginInvitation"
-            style="--d:1.15s"
-            data-testid="begin-invitation-button"
+            style="--d:1.02s"
           >
             Begin the Celebration
           </button>
@@ -1073,9 +542,8 @@
 
         <a
           class="hero__scroll hero-anim"
-          style="--d:1.4s"
+          style="--d:1.18s"
           href="#story"
-          data-testid="hero-scroll-indicator"
           aria-label="Scroll to our story"
         >
           <span class="hero__scroll-text">
@@ -1092,9 +560,9 @@
     `;
   }
 
-  // ============================================================
-  // OUR STORY
-  // ============================================================
+  /* ------------------------------------------------------------
+     STORY
+     ------------------------------------------------------------ */
 
   function storyHTML() {
     const images =
@@ -1127,23 +595,21 @@
         <div
           class="section-head reveal"
         >
-
-          <p
-            class="section-eyebrow"
-          >
+          <p class="section-eyebrow">
             Our Story
           </p>
 
-          <h2
-            class="section-title"
-          >
-            ${esc(cfg.bride)}
+          <h2 class="section-title">
+            ${esc(
+              cfg.bride || 'Palak'
+            )}
             <em>&amp;</em>
-            ${esc(cfg.groom)}
+            ${esc(
+              cfg.groom || 'Nalin'
+            )}
           </h2>
 
           ${dividerHTML()}
-
         </div>
 
         <div class="story__grid">
@@ -1152,42 +618,47 @@
             class="story__text reveal"
           >
 
-            <p
-              class="story__names"
-            >
-              ${esc(cfg.brideFull)}
+            <p class="story__names">
+              ${esc(
+                cfg.brideFull ||
+                cfg.bride ||
+                'Palak'
+              )}
 
-              <span
-                class="story__amp"
-              >
+              <span class="story__amp">
                 &amp;
               </span>
 
-              ${esc(cfg.groomFull)}
+              ${esc(
+                cfg.groomFull ||
+                cfg.groom ||
+                'Nalin'
+              )}
             </p>
 
-            <p
-              class="story__message"
-            >
-              ${esc(cfg.storyMessage)}
+            <p class="story__message">
+              ${esc(
+                cfg.storyMessage ||
+                'Prepped, plated, perfectly paired.'
+              )}
             </p>
 
-            <p
-              class="story__date"
-            >
-              ${esc(cfg.dateLabel)}
+            <p class="story__date">
+              ${esc(
+                cfg.dateLabel ||
+                '03 DECEMBER 2026'
+              )}
               ·
-              ${esc(cfg.city)}
+              ${esc(
+                cfg.city ||
+                'Lucknow'
+              )}
             </p>
 
             ${
-              brideParents ||
-              groomParents
+              brideParents || groomParents
                 ? `
-                  <div
-                    class="story__blessings"
-                  >
-
+                  <div class="story__blessings">
                     <p>
                       With the blessings of
                     </p>
@@ -1196,7 +667,9 @@
                       brideParents
                         ? `
                           <span>
-                            ${esc(brideParents)}
+                            ${esc(
+                              brideParents
+                            )}
                           </span>
                         `
                         : ''
@@ -1206,12 +679,13 @@
                       groomParents
                         ? `
                           <span>
-                            ${esc(groomParents)}
+                            ${esc(
+                              groomParents
+                            )}
                           </span>
                         `
                         : ''
                     }
-
                   </div>
                 `
                 : ''
@@ -1226,7 +700,6 @@
                 : ' polaroid--empty'
             }"
             id="polaroid"
-            data-testid="gallery"
           >
 
             ${
@@ -1234,11 +707,15 @@
                 ? `
                   <img
                     id="galleryImg"
-                    src="${esc(images[0])}"
+                    src="${esc(
+                      images[0]
+                    )}"
                     alt="${esc(
-                      cfg.bride
+                      cfg.bride ||
+                      'Palak'
                     )} and ${esc(
-                      cfg.groom
+                      cfg.groom ||
+                      'Nalin'
                     )}"
                     loading="lazy"
                     decoding="async"
@@ -1248,7 +725,7 @@
                         .classList.add('polaroid--empty');
                       this.remove();
                     "
-                  >
+                  />
                 `
                 : ''
             }
@@ -1257,17 +734,21 @@
               class="polaroid__placeholder"
               aria-hidden="true"
             >
-
               <svg>
                 <use href="#orn-bloom"></use>
               </svg>
 
               <span>
-                ${esc(cfg.bride)}
+                ${esc(
+                  cfg.bride ||
+                  'Palak'
+                )}
                 &amp;
-                ${esc(cfg.groom)}
+                ${esc(
+                  cfg.groom ||
+                  'Nalin'
+                )}
               </span>
-
             </div>
 
             ${
@@ -1276,9 +757,8 @@
                   <button
                     class="poly-nav poly-prev"
                     id="galleryPrev"
-                    data-testid="gallery-prev"
-                    aria-label="Previous photo"
                     type="button"
+                    aria-label="Previous photo"
                   >
                     ‹
                   </button>
@@ -1286,18 +766,13 @@
                   <button
                     class="poly-nav poly-next"
                     id="galleryNext"
-                    data-testid="gallery-next"
-                    aria-label="Next photo"
                     type="button"
+                    aria-label="Next photo"
                   >
                     ›
                   </button>
 
-                  <div
-                    class="poly-dots"
-                    aria-label="Gallery navigation"
-                  >
-
+                  <div class="poly-dots">
                     ${images
                       .map(
                         (_, index) => `
@@ -1308,16 +783,14 @@
                                 : ''
                             }"
                             data-i="${index}"
-                            data-testid="gallery-dot-${index}"
+                            type="button"
                             aria-label="Photo ${
                               index + 1
                             }"
-                            type="button"
                           ></button>
                         `
                       )
                       .join('')}
-
                   </div>
                 `
                 : ''
@@ -1331,9 +804,9 @@
     `;
   }
 
-  // ============================================================
-  // INVITATION CARD
-  // ============================================================
+  /* ------------------------------------------------------------
+     INVITATION CARD
+     ------------------------------------------------------------ */
 
   function invitationCardHTML() {
     const family =
@@ -1363,14 +836,9 @@
         id="invitation-card"
       >
 
-        <div
-          class="invitation-card__wrapper"
-        >
+        <div class="invitation-card__wrapper">
 
-          <div
-            class="invitation-card reveal"
-            data-testid="invitation-card"
-          >
+          <div class="invitation-card reveal">
 
             ${sprig(
               'invitation-card__corner invitation-card__corner--tl'
@@ -1388,22 +856,15 @@
               'invitation-card__corner invitation-card__corner--br'
             )}
 
-            <p
-              class="invitation-card__om"
-            >
+            <p class="invitation-card__om">
               ॐ
             </p>
 
-            <p
-              class="invitation-card__ganesh"
-            >
+            <p class="invitation-card__ganesh">
               श्री गणेशाय नमः:
             </p>
 
-            <div
-              class="invitation-card__host"
-            >
-
+            <div class="invitation-card__host">
               ${grandparents
                 .map(
                   (name) => `
@@ -1413,89 +874,83 @@
                   `
                 )
                 .join('')}
-
             </div>
 
-            <p
-              class="invitation-card__host-note"
-            >
+            <p class="invitation-card__host-note">
               feels immense pleasure in inviting you
               <br>
               on the auspicious occasion of the wedding
               of her beloved
             </p>
 
-            <p
-              class="invitation-card__grand"
-            >
+            <p class="invitation-card__grand">
               GRAND DAUGHTER
             </p>
 
-            <h2
-              class="invitation-card__name"
-            >
-              ${esc(cfg.brideFull)}
+            <h2 class="invitation-card__name">
+              ${esc(
+                cfg.brideFull ||
+                cfg.bride ||
+                'Palak'
+              )}
             </h2>
 
-            <p
-              class="invitation-card__relationship"
-            >
+            <p class="invitation-card__relationship">
               daughter of
             </p>
 
-            <p
-              class="invitation-card__parents"
-            >
-              ${esc(brideParents[0])}
+            <p class="invitation-card__parents">
+              ${esc(
+                brideParents[0] ||
+                ''
+              )}
               and
               <br>
-              ${esc(brideParents[1])}
+              ${esc(
+                brideParents[1] ||
+                ''
+              )}
             </p>
 
-            <p
-              class="invitation-card__with"
-            >
+            <p class="invitation-card__with">
               WITH
             </p>
 
-            <h2
-              class="invitation-card__name"
-            >
-              ${esc(cfg.groomFull)}
+            <h2 class="invitation-card__name">
+              ${esc(
+                cfg.groomFull ||
+                cfg.groom ||
+                'Nalin'
+              )}
             </h2>
 
-            <p
-              class="invitation-card__relationship"
-            >
+            <p class="invitation-card__relationship">
               son of
             </p>
 
-            <p
-              class="invitation-card__parents"
-            >
-              ${esc(groomParents[0])}
+            <p class="invitation-card__parents">
+              ${esc(
+                groomParents[0] ||
+                ''
+              )}
               and
               <br>
-              ${esc(groomParents[1])}
+              ${esc(
+                groomParents[1] ||
+                ''
+              )}
             </p>
 
-            <div
-              class="invitation-card__divider"
-            >
+            <div class="invitation-card__divider">
               <span
                 class="invitation-card__divider-mark"
               ></span>
             </div>
 
-            <div
-              class="invitation-card__details"
-            >
+            <div class="invitation-card__details">
 
-              <div
-                class="invitation-card__detail"
-              >
+              <div class="invitation-card__detail">
                 Thursday, 3rd December 2026
-
                 <em>
                   7:30 PM ONWARDS
                 </em>
@@ -1506,9 +961,7 @@
                 aria-hidden="true"
               ></span>
 
-              <div
-                class="invitation-card__detail"
-              >
+              <div class="invitation-card__detail">
                 The Hilton
                 <em>
                   Lucknow
@@ -1524,7 +977,7 @@
               aria-hidden="true"
               loading="lazy"
               decoding="async"
-            >
+            />
 
           </div>
 
@@ -1534,9 +987,9 @@
     `;
   }
 
-  // ============================================================
-  // TIMELINE
-  // ============================================================
+  /* ------------------------------------------------------------
+     TIMELINE
+     ------------------------------------------------------------ */
 
   function timelineHTML() {
     const events =
@@ -1555,39 +1008,23 @@
         <div
           class="section-head reveal"
         >
-
-          <p
-            class="section-eyebrow"
-          >
+          <p class="section-eyebrow">
             The Journey
           </p>
 
-          <h2
-            class="section-title"
-          >
+          <h2 class="section-title">
             Wedding Timeline
           </h2>
 
           ${dividerHTML()}
-
         </div>
 
-        <ol
-          class="timeline__list"
-        >
+        <ol class="timeline__list">
 
           ${events
             .map(
               (event, index) => `
-                <li
-                  class="timeline__item reveal"
-                  data-testid="timeline-${
-                    esc(
-                      event.theme ||
-                      index
-                    )
-                  }"
-                >
+                <li class="timeline__item reveal">
 
                   <div
                     class="timeline__marker"
@@ -1598,29 +1035,28 @@
                     </span>
                   </div>
 
-                  <div
-                    class="timeline__card timeline__card--${esc(
-                      event.theme ||
-                      'default'
-                    )}"
-                  >
+                  <div class="timeline__card">
 
-                    <p
-                      class="timeline__day"
-                    >
-                      ${esc(event.day)}
+                    <p class="timeline__day">
+                      ${esc(
+                        event.day ||
+                        ''
+                      )}
                     </p>
 
-                    <h3
-                      class="timeline__name"
-                    >
-                      ${esc(event.name)}
+                    <h3 class="timeline__name">
+                      ${esc(
+                        event.name ||
+                        ''
+                      )}
                     </h3>
 
-                    <p
-                      class="timeline__meta"
-                    >
-                      ${esc(event.date)}
+                    <p class="timeline__meta">
+                      ${esc(
+                        event.date ||
+                        ''
+                      )}
+
                       ${
                         event.time
                           ? ` · ${esc(
@@ -1643,29 +1079,17 @@
     `;
   }
 
-  // ============================================================
-  // EVENT CARDS
-  // ============================================================
+  /* ------------------------------------------------------------
+     EVENT CARDS
+     ------------------------------------------------------------ */
 
   function eventCardHTML(event) {
     return `
       <article
-        class="event-card event-card--${esc(
-          event.theme ||
-          'default'
-        )} reveal"
-        data-testid="event-${esc(
-          (
-            event.theme ||
-            event.name ||
-            ''
-          ).toLowerCase()
-        )}"
+        class="event-card reveal"
       >
 
-        <figure
-          class="event-card__media"
-        >
+        <figure class="event-card__media">
 
           <div
             class="event-card__motif"
@@ -1680,9 +1104,12 @@
             event.image
               ? `
                 <img
-                  src="${esc(event.image)}"
+                  src="${esc(
+                    event.image
+                  )}"
                   alt="${esc(
-                    event.name
+                    event.name ||
+                    'Wedding'
                   )} celebration"
                   loading="lazy"
                   decoding="async"
@@ -1690,35 +1117,37 @@
                     this.onerror=null;
                     this.remove();
                   "
-                >
+                />
               `
               : ''
           }
 
         </figure>
 
-        <div
-          class="event-card__body"
-        >
+        <div class="event-card__body">
 
-          <p
-            class="event-card__day"
-          >
-            ${esc(event.day)}
+          <p class="event-card__day">
+            ${esc(
+              event.day ||
+              ''
+            )}
             ·
-            ${esc(event.date)}
+            ${esc(
+              event.date ||
+              ''
+            )}
           </p>
 
-          <h3
-            class="event-card__name"
-          >
-            ${esc(event.name)}
+          <h3 class="event-card__name">
+            ${esc(
+              event.name ||
+              ''
+            )}
           </h3>
 
           <svg
             class="event-card__divider"
             aria-hidden="true"
-            focusable="false"
           >
             <use href="#orn-divider"></use>
           </svg>
@@ -1726,10 +1155,10 @@
           ${
             event.time
               ? `
-                <p
-                  class="event-card__time"
-                >
-                  ${esc(event.time)}
+                <p class="event-card__time">
+                  ${esc(
+                    event.time
+                  )}
                 </p>
               `
               : ''
@@ -1738,10 +1167,10 @@
           ${
             event.venue
               ? `
-                <p
-                  class="event-card__venue"
-                >
-                  ${esc(event.venue)}
+                <p class="event-card__venue">
+                  ${esc(
+                    event.venue
+                  )}
                 </p>
               `
               : ''
@@ -1750,9 +1179,7 @@
           ${
             event.description
               ? `
-                <p
-                  class="event-card__desc"
-                >
+                <p class="event-card__desc">
                   ${esc(
                     event.description
                   )}
@@ -1784,26 +1211,18 @@
         <div
           class="section-head reveal"
         >
-
-          <p
-            class="section-eyebrow"
-          >
+          <p class="section-eyebrow">
             The Festivities
           </p>
 
-          <h2
-            class="section-title"
-          >
+          <h2 class="section-title">
             Celebrations
           </h2>
 
           ${dividerHTML()}
-
         </div>
 
-        <div
-          class="events__grid"
-        >
+        <div class="events__grid">
           ${events
             .map(eventCardHTML)
             .join('')}
@@ -1813,9 +1232,9 @@
     `;
   }
 
-  // ============================================================
-  // COUNTDOWN
-  // ============================================================
+  /* ------------------------------------------------------------
+     COUNTDOWN
+     ------------------------------------------------------------ */
 
   function countdownHTML() {
     return `
@@ -1835,77 +1254,58 @@
         <div
           class="section-head reveal"
         >
-
-          <p
-            class="section-eyebrow"
-          >
+          <p class="section-eyebrow">
             Save the Date
           </p>
 
-          <h2
-            class="section-title"
-          >
+          <h2 class="section-title">
             Counting Down
           </h2>
 
           ${dividerHTML()}
-
         </div>
 
         <div
           class="countdown__box reveal"
           id="countdownBox"
-          data-testid="countdown"
           role="timer"
           aria-label="Countdown to the wedding"
         >
 
-          <div
-            class="countdown__cell"
-          >
-            <strong
-              data-unit="days"
-              data-testid="countdown-days"
-            >
+          <div class="countdown__cell">
+            <strong data-unit="days">
               --
             </strong>
-            <small>Days</small>
+            <small>
+              Days
+            </small>
           </div>
 
-          <div
-            class="countdown__cell"
-          >
-            <strong
-              data-unit="hours"
-              data-testid="countdown-hours"
-            >
+          <div class="countdown__cell">
+            <strong data-unit="hours">
               --
             </strong>
-            <small>Hours</small>
+            <small>
+              Hours
+            </small>
           </div>
 
-          <div
-            class="countdown__cell"
-          >
-            <strong
-              data-unit="minutes"
-              data-testid="countdown-minutes"
-            >
+          <div class="countdown__cell">
+            <strong data-unit="minutes">
               --
             </strong>
-            <small>Minutes</small>
+            <small>
+              Minutes
+            </small>
           </div>
 
-          <div
-            class="countdown__cell"
-          >
-            <strong
-              data-unit="seconds"
-              data-testid="countdown-seconds"
-            >
+          <div class="countdown__cell">
+            <strong data-unit="seconds">
               --
             </strong>
-            <small>Seconds</small>
+            <small>
+              Seconds
+            </small>
           </div>
 
         </div>
@@ -1918,26 +1318,38 @@
           The celebration has begun!
         </p>
 
-        <p
-          class="countdown__target reveal"
-        >
-          ${esc(cfg.dateLabel)}
+        <p class="countdown__target reveal">
+          ${esc(
+            cfg.dateLabel ||
+            '03 DECEMBER 2026'
+          )}
           ·
-          ${esc(cfg.venue)}
+          ${esc(
+            cfg.venue ||
+            'The Hilton Lucknow'
+          )}
         </p>
 
       </section>
     `;
   }
 
-  // ============================================================
-  // VENUE
-  // ============================================================
+  /* ------------------------------------------------------------
+     VENUE
+     ------------------------------------------------------------ */
 
   function venueHTML() {
+    const venue =
+      cfg.venue ||
+      'The Hilton Lucknow';
+
+    const address =
+      cfg.venueAddress ||
+      'Vibhuti Khand, Lucknow';
+
     const query =
       encodeURIComponent(
-        `${cfg.venue}, ${cfg.venueAddress}`
+        `${venue}, ${address}`
       );
 
     const embedSrc =
@@ -1956,57 +1368,38 @@
         <div
           class="section-head reveal"
         >
-
-          <p
-            class="section-eyebrow"
-          >
+          <p class="section-eyebrow">
             Where
           </p>
 
-          <h2
-            class="section-title"
-          >
+          <h2 class="section-title">
             The Venue
           </h2>
 
           ${dividerHTML()}
-
         </div>
 
-        <div
-          class="venue__grid"
-        >
+        <div class="venue__grid">
 
-          <div
-            class="venue__info reveal"
-          >
+          <div class="venue__info reveal">
 
-            <h3
-              class="venue__name"
-              data-testid="venue-name"
-            >
-              ${esc(cfg.venue)}
+            <h3 class="venue__name">
+              ${esc(venue)}
             </h3>
 
-            <p
-              class="venue__address"
-            >
-              ${esc(
-                cfg.venueAddress
-              )}
+            <p class="venue__address">
+              ${esc(address)}
             </p>
 
-            <p
-              class="venue__desc"
-            >
+            <p class="venue__desc">
               ${esc(
-                cfg.venueDescription
+                cfg.venueDescription ||
+                'An elegant evening of celebration in Lucknow.'
               )}
             </p>
 
             <a
               class="venue__btn"
-              data-testid="get-directions-button"
               href="${directionsHref}"
               target="_blank"
               rel="noopener"
@@ -2016,7 +1409,6 @@
               <svg
                 viewBox="0 0 24 24"
                 aria-hidden="true"
-                focusable="false"
               >
                 <path
                   d="M5 12h14M13 6l6 6-6 6"
@@ -2027,20 +1419,16 @@
                   stroke-linejoin="round"
                 />
               </svg>
-
             </a>
 
           </div>
 
-          <div
-            class="venue__map reveal"
-            data-testid="venue-map"
-          >
+          <div class="venue__map reveal">
 
             <iframe
               src="${embedSrc}"
               title="Map showing ${esc(
-                cfg.venue
+                venue
               )}"
               loading="lazy"
               referrerpolicy="no-referrer-when-downgrade"
@@ -2055,36 +1443,35 @@
     `;
   }
 
-  // ============================================================
-  // FOOTER
-  // ============================================================
+  /* ------------------------------------------------------------
+     FOOTER
+     ------------------------------------------------------------ */
 
   function footerHTML() {
     return `
-      <footer
-        class="footer"
-      >
+      <footer class="footer">
 
         <svg
           class="footer__bloom"
           aria-hidden="true"
-          focusable="false"
         >
           <use href="#orn-bloom"></use>
         </svg>
 
-        <p
-          class="footer__love"
-        >
+        <p class="footer__love">
           With love,
         </p>
 
-        <p
-          class="footer__names"
-        >
-          ${esc(cfg.bride)}
+        <p class="footer__names">
+          ${esc(
+            cfg.bride ||
+            'Palak'
+          )}
           <em>&amp;</em>
-          ${esc(cfg.groom)}
+          ${esc(
+            cfg.groom ||
+            'Nalin'
+          )}
         </p>
 
         <div
@@ -2093,24 +1480,32 @@
         >
           <img
             class="footer__nalaks-logo footer__nalaks-logo--dark"
-            src="${esc(cfg.assets?.nalaksWhiteLogo || 'assets/nalaks-white-logo.webp')}"
+            src="${esc(
+              cfg.assets?.nalaksWhiteLogo ||
+              'assets/nalaks-white-logo.webp'
+            )}"
             alt="NALAKS"
             loading="lazy"
             decoding="async"
-          >
+          />
+
           <img
             class="footer__nalaks-logo footer__nalaks-logo--light"
-            src="${esc(cfg.assets?.nalaksBlueLogo || 'assets/nalaks-blue-logo.webp')}"
+            src="${esc(
+              cfg.assets?.nalaksBlueLogo ||
+              'assets/nalaks-blue-logo.webp'
+            )}"
             alt="NALAKS"
             loading="lazy"
             decoding="async"
-          >
+          />
         </div>
 
-        <p
-          class="footer__date"
-        >
-          ${esc(cfg.dateLabel)}
+        <p class="footer__date">
+          ${esc(
+            cfg.dateLabel ||
+            '03 DECEMBER 2026'
+          )}
         </p>
 
         <button
@@ -2124,7 +1519,9 @@
             class="theme-toggle__icon"
             id="themeToggleIcon"
             aria-hidden="true"
-          >☼</span>
+          >
+            ☼
+          </span>
 
           <span
             class="theme-toggle__label"
@@ -2138,94 +1535,108 @@
     `;
   }
 
-  // ============================================================
-  // MUSIC HTML
-  // ============================================================
+  /* ------------------------------------------------------------
+     MUSIC + FLOATING COUNTDOWN HTML
+     ------------------------------------------------------------ */
 
   function musicHTML() {
-  const musicSrc =
-    cfg.assets?.music ||
-    cfg.music ||
-    'assets/music.mp3';
+    const musicSrc =
+      cfg.assets?.music ||
+      cfg.music ||
+      'assets/music.mp3';
 
-  return `
-    <!-- MUSIC -->
-    <button
-      class="music-control"
-      id="musicControl"
-      type="button"
-      aria-label="Play music"
-      aria-pressed="false"
-      title="Play / pause music"
-    >
-      <span
-        class="music-control__icon"
-        id="musicControlIcon"
-        aria-hidden="true"
+    return `
+      <button
+        class="music-control"
+        id="musicControl"
+        type="button"
+        aria-label="Play music"
+        aria-pressed="false"
+        title="Play music"
       >
-        ♪
-      </span>
-
-      <span
-        class="music-control__label"
-        id="musicControlLabel"
-      >
-        Play Music
-      </span>
-    </button>
-
-    <!-- FLOATING COUNTDOWN -->
-    <div
-      class="floating-countdown"
-      id="floatingCountdown"
-      aria-label="Countdown to the wedding"
-    >
-      <span
-        class="floating-countdown__compact"
-        aria-hidden="true"
-      >
-        ◷
-      </span>
-
-      <span
-        class="floating-countdown__full"
-        aria-hidden="true"
-      >
-        <span class="floating-countdown__intro">
-          WEDDING IN
+        <span
+          class="music-control__icon"
+          id="musicControlIcon"
+          aria-hidden="true"
+        >
+          ♪
         </span>
 
-        <span class="floating-countdown__values">
-          <strong id="floatingDays">--</strong>
-          <small>D</small>
-
-          <strong id="floatingHours">--</strong>
-          <small>H</small>
-
-          <strong id="floatingMinutes">--</strong>
-          <small>M</small>
+        <span
+          class="music-control__label"
+          id="musicControlLabel"
+        >
+          Play Music
         </span>
-      </span>
-    </div>
+      </button>
 
-    <audio
-      id="audio"
-      src="${esc(musicSrc)}"
-      loop
-      preload="auto"
-    ></audio>
-  `;
-}
+      <div
+        class="floating-countdown"
+        id="floatingCountdown"
+        aria-label="Countdown to the wedding"
+      >
+        <span
+          class="floating-countdown__compact"
+          aria-hidden="true"
+        >
+          ◷
+        </span>
 
-   // ============================================================
-  // MUSIC SETUP
-  // ============================================================
+        <span
+          class="floating-countdown__full"
+          aria-hidden="true"
+        >
+          <span class="floating-countdown__intro">
+            WEDDING IN
+          </span>
+
+          <span class="floating-countdown__values">
+            <strong id="floatingDays">
+              --
+            </strong>
+            <small>D</small>
+
+            <strong id="floatingHours">
+              --
+            </strong>
+            <small>H</small>
+
+            <strong id="floatingMinutes">
+              --
+            </strong>
+            <small>M</small>
+          </span>
+        </span>
+      </div>
+
+      <audio
+        id="audio"
+        src="${esc(musicSrc)}"
+        loop
+        preload="auto"
+      ></audio>
+    `;
+  }
+
+  /* ------------------------------------------------------------
+     MUSIC SETUP
+     ------------------------------------------------------------ */
 
   function setupMusic() {
-    const audio = $('#audio');
-    const button = $('#musicControl');
-    const icon = $('#musicControlIcon');
-    const beginButton = $('#beginInvitation');
+    const audio =
+      $('#audio');
+
+    const button =
+      $('#musicControl');
+
+    const icon =
+      $('#musicControlIcon');
+
+    const label =
+      $('#musicControlLabel');
+
+    const beginButton =
+      $('#beginInvitation');
 
     if (!audio) {
       return;
@@ -2234,13 +1645,14 @@
     audio.volume = 0.65;
 
     /*
-     * Music state rules:
+     * Music rules:
      *
-     * 1. The first successful Begin the Celebration click may start music.
-     * 2. Later celebration clicks never start/restart/resume music.
-     * 3. The corner button is the only control that can resume after a pause.
+     * 1. The FIRST Begin click gets one chance to start music.
+     * 2. Later Begin clicks never start or resume music.
+     * 3. The corner music button is the only manual resume control.
      * 4. Scrolling never starts music automatically.
      */
+
     let celebrationClickHandled = false;
     let manuallyPaused = false;
     let playInProgress = false;
@@ -2250,7 +1662,8 @@
         return;
       }
 
-      const playing = !audio.paused;
+      const playing =
+        !audio.paused;
 
       button.classList.toggle(
         'is-playing',
@@ -2278,67 +1691,69 @@
 
       if (icon) {
         icon.textContent =
-          playing ? 'Ⅱ' : '♪';
-      }
-      const label =
-  $('#musicControlLabel');
-
-if (label) {
-  label.textContent =
-    playing
-      ? 'Pause Music'
-      : 'Play Music';
-}
-    };
-
-    const startMusic = async () => {
-      if (!audio || !audio.paused) {
-        updateButton();
-        return true;
+          playing
+            ? 'Ⅱ'
+            : '♪';
       }
 
-      if (playInProgress) {
-        return false;
-      }
-
-      playInProgress = true;
-
-      try {
-        await audio.play();
-        manuallyPaused = false;
-        updateButton();
-        return true;
-      } catch {
-        updateButton();
-        return false;
-      } finally {
-        playInProgress = false;
+      if (label) {
+        label.textContent =
+          playing
+            ? 'Pause Music'
+            : 'Play Music';
       }
     };
 
-    const pauseMusic = () => {
-      if (!audio.paused) {
+    const startMusic =
+      async () => {
+        if (!audio) {
+          return false;
+        }
+
+        if (!audio.paused) {
+          updateButton();
+          return true;
+        }
+
+        if (playInProgress) {
+          return false;
+        }
+
+        playInProgress = true;
+
+        try {
+          await audio.play();
+          updateButton();
+          return true;
+        } catch {
+          updateButton();
+          return false;
+        } finally {
+          playInProgress = false;
+        }
+      };
+
+    const pauseMusic =
+      () => {
         audio.pause();
-      }
+        manuallyPaused = true;
+        updateButton();
+      };
 
-      manuallyPaused = true;
-      updateButton();
-    };
+    const toggleMusic =
+      async () => {
+        if (audio.paused) {
+          manuallyPaused = false;
+          await startMusic();
+        } else {
+          pauseMusic();
+        }
+      };
 
-    const toggleMusic = async () => {
-      if (audio.paused) {
-        await startMusic();
-      } else {
-        pauseMusic();
-      }
-    };
-
-    if (button) {
-      button.addEventListener(
-        'click',
-        toggleMusic
-      );
-    }
+    button?.addEventListener(
+      'click',
+      toggleMusic
+    );
 
     audio.addEventListener(
       'play',
@@ -2358,52 +1773,47 @@ if (label) {
     audio.addEventListener(
       'error',
       () => {
-        if (button) {
-          button.setAttribute(
-            'title',
-            'Music file not found'
-          );
-        }
+        button?.setAttribute(
+          'title',
+          'Music file not found'
+        );
       }
     );
 
-    if (beginButton) {
-      beginButton.addEventListener(
-        'click',
-        () => {
-          /* Scroll immediately; do not wait for audio. */
-          const target =
-            document.querySelector('#story');
+    beginButton?.addEventListener(
+      'click',
+      () => {
+        const target =
+          document.querySelector(
+            '#story'
+          );
 
-          if (target) {
-            smoothScrollTo(target);
-          }
-
-          /*
-           * Only the first celebration-button click gets a chance to
-           * start music. Mark it handled BEFORE calling play(), which
-           * also prevents rapid double-clicks from making two play calls.
-           * After a manual pause, this button cannot resume music.
-           */
-          if (
-            celebrationClickHandled ||
-            manuallyPaused
-          ) {
-            return;
-          }
-
-          celebrationClickHandled = true;
-          void startMusic();
+        if (target) {
+          smoothScrollTo(target);
         }
-      );
-    }
+
+        /*
+         * The celebration button can only initiate music once.
+         */
+        if (
+          celebrationClickHandled ||
+          manuallyPaused
+        ) {
+          return;
+        }
+
+        celebrationClickHandled = true;
+
+        void startMusic();
+      }
+    );
 
     updateButton();
   }
 
-  // ============================================================
-  // GALLERY
-  // ============================================================
+  /* ------------------------------------------------------------
+     GALLERY
+     ------------------------------------------------------------ */
 
   function setupGallery() {
     const images =
@@ -2431,8 +1841,7 @@ if (label) {
     const gallery =
       $('#polaroid');
 
-    let current =
-      0;
+    let current = 0;
 
     const show =
       (index) => {
@@ -2446,32 +1855,28 @@ if (label) {
         }
 
         dots.forEach(
-          (dot, i) => {
+          (dot, indexValue) => {
             dot.classList.toggle(
               'active',
-              i === current
+              indexValue === current
             );
           }
         );
       };
 
-    if (previous) {
-      previous.addEventListener(
-        'click',
-        () => {
-          show(current - 1);
-        }
-      );
-    }
+    previous?.addEventListener(
+      'click',
+      () => show(
+        current - 1
+      )
+    );
 
-    if (next) {
-      next.addEventListener(
-        'click',
-        () => {
-          show(current + 1);
-        }
-      );
-    }
+    next?.addEventListener(
+      'click',
+      () => show(
+        current + 1
+      )
+    );
 
     dots.forEach(
       (dot) => {
@@ -2492,37 +1897,33 @@ if (label) {
       return;
     }
 
-    let startX =
-      null;
+    let startX = null;
 
     gallery.addEventListener(
       'touchstart',
       (event) => {
         startX =
-          event.touches[0].clientX;
+          event.touches[0]?.clientX ??
+          null;
       },
-      {
-        passive: true
-      }
+      { passive: true }
     );
 
     gallery.addEventListener(
       'touchend',
       (event) => {
-        if (
-          startX === null
-        ) {
+        if (startX === null) {
           return;
         }
 
-        const delta =
-          event.changedTouches[0]
-            .clientX -
+        const endX =
+          event.changedTouches[0]?.clientX ??
           startX;
 
-        if (
-          Math.abs(delta) > 40
-        ) {
+        const delta =
+          endX - startX;
+
+        if (Math.abs(delta) > 40) {
           show(
             current +
             (
@@ -2533,18 +1934,15 @@ if (label) {
           );
         }
 
-        startX =
-          null;
+        startX = null;
       },
-      {
-        passive: true
-      }
+      { passive: true }
     );
   }
 
-  // ============================================================
-  // REVEAL ANIMATIONS
-  // ============================================================
+  /* ------------------------------------------------------------
+     REVEAL ANIMATIONS
+     ------------------------------------------------------------ */
 
   function setupRevealAnimations() {
     const elements =
@@ -2620,20 +2018,9 @@ if (label) {
     );
   }
 
-  // ============================================================
-  // NAVIGATION SETUP
-  // ============================================================
-  // ============================================================
-  // SMOOTH SCROLLING
-  // ============================================================
-
-  // ============================================================
-  // TRUE SMOOTH SCROLLING
-  // ============================================================
-  // Uses our own requestAnimationFrame animation instead of the
-  // browser's native smooth-scroll implementation. This avoids
-  // mobile-browser/reduced-motion settings turning the scroll
-  // into an instant jump.
+  /* ------------------------------------------------------------
+     TRUE SMOOTH SCROLL ENGINE
+     ------------------------------------------------------------ */
 
   let smoothScrollFrame = null;
   let smoothScrollToken = 0;
@@ -2643,94 +2030,208 @@ if (label) {
       return;
     }
 
-    if (smoothScrollFrame !== null) {
-      cancelAnimationFrame(smoothScrollFrame);
+    if (
+      smoothScrollFrame !== null
+    ) {
+      cancelAnimationFrame(
+        smoothScrollFrame
+      );
+
       smoothScrollFrame = null;
     }
 
     smoothScrollToken += 1;
-    const token = smoothScrollToken;
 
-    const nav = document.querySelector('#siteNav');
-    const navOffset = nav
-      ? nav.getBoundingClientRect().height
-      : 76;
+    const token =
+      smoothScrollToken;
 
-    const startY = window.scrollY || window.pageYOffset || 0;
-    const maxY = Math.max(
-      0,
-      document.documentElement.scrollHeight - window.innerHeight
-    );
+    const nav =
+      document.querySelector(
+        '#siteNav'
+      );
 
-    const targetY = Math.min(
-      maxY,
+    const navOffset =
+      nav
+        ? nav.getBoundingClientRect().height
+        : 0;
+
+    const startY =
+      window.scrollY ||
+      window.pageYOffset ||
+      0;
+
+    const maxY =
       Math.max(
         0,
-        target.getBoundingClientRect().top + startY - navOffset - 8
-      )
-    );
+        document.documentElement
+          .scrollHeight -
+        window.innerHeight
+      );
 
-    const distance = targetY - startY;
+    const targetY =
+      Math.min(
+        maxY,
+        Math.max(
+          0,
+          target.getBoundingClientRect().top +
+          startY -
+          navOffset -
+          8
+        )
+      );
 
-    if (Math.abs(distance) < 1) {
-      window.scrollTo(0, targetY);
+    const distance =
+      targetY -
+      startY;
+
+    if (
+      Math.abs(distance) < 1
+    ) {
+      window.scrollTo(
+        0,
+        targetY
+      );
       return;
     }
 
-    const duration = Math.min(1100, Math.max(650, Math.abs(distance) * 0.55));
-    const startTime = performance.now();
+    const duration =
+      Math.min(
+        1200,
+        Math.max(
+          700,
+          Math.abs(distance) *
+          0.65
+        )
+      );
 
-    const easeInOutCubic = (t) =>
-      t < 0.5
-        ? 4 * t * t * t
-        : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    const startTime =
+      performance.now();
 
-    const animate = (now) => {
-      if (token !== smoothScrollToken) {
-        return;
-      }
+    const ease =
+      (t) =>
+        t < 0.5
+          ? 4 * t * t * t
+          : 1 -
+            Math.pow(
+              -2 * t + 2,
+              3
+            ) / 2;
 
-      const elapsed = now - startTime;
-      const progress = Math.min(1, elapsed / duration);
-      const eased = easeInOutCubic(progress);
-      const y = startY + distance * eased;
+    const animate =
+      (now) => {
+        if (
+          token !==
+          smoothScrollToken
+        ) {
+          return;
+        }
 
-      // Numeric scrollTo keeps every frame under our control.
-      window.scrollTo(0, y);
+        const progress =
+          Math.min(
+            1,
+            (
+              now -
+              startTime
+            ) / duration
+          );
 
-      if (progress < 1) {
-        smoothScrollFrame = requestAnimationFrame(animate);
-      } else {
-        smoothScrollFrame = null;
-        window.scrollTo(0, targetY);
-      }
-    };
+        const y =
+          startY +
+          distance *
+          ease(progress);
 
-    smoothScrollFrame = requestAnimationFrame(animate);
+        window.scrollTo(
+          0,
+          y
+        );
+
+        if (
+          progress < 1
+        ) {
+          smoothScrollFrame =
+            requestAnimationFrame(
+              animate
+            );
+        } else {
+          smoothScrollFrame =
+            null;
+
+          window.scrollTo(
+            0,
+            targetY
+          );
+        }
+      };
+
+    smoothScrollFrame =
+      requestAnimationFrame(
+        animate
+      );
+  }
+
+  function closeMobileMenu() {
+    document.body.classList.remove(
+      'menu-open'
+    );
+
+    const button =
+      document.querySelector(
+        '#menuBtn'
+      );
+
+    if (button) {
+      button.setAttribute(
+        'aria-expanded',
+        'false'
+      );
+
+      button.setAttribute(
+        'aria-label',
+        'Open menu'
+      );
+    }
   }
 
   function setupSmoothScrolling() {
-    // Event delegation means links that are rendered later still work.
-    // Capture phase prevents the browser's native anchor jump.
+    /*
+     * Capture phase stops native anchor jumping before it can occur.
+     */
     document.addEventListener(
       'click',
       (event) => {
-        const link = event.target.closest('a[href^="#"]');
+        const source =
+          event.target instanceof Element
+            ? event.target
+            : event.target?.parentElement;
+
+        const link =
+          source?.closest(
+            'a[href^="#"]'
+          );
 
         if (!link) {
           return;
         }
 
-        const href = link.getAttribute('href');
+        const href =
+          link.getAttribute(
+            'href'
+          );
 
-        if (!href || href === '#' || href.length <= 1) {
+        if (
+          !href ||
+          href === '#'
+        ) {
           return;
         }
 
         let target = null;
 
         try {
-          target = document.querySelector(href);
+          target =
+            document.querySelector(
+              href
+            );
         } catch {
           return;
         }
@@ -2741,30 +2242,27 @@ if (label) {
 
         event.preventDefault();
 
-        // Close the mobile menu before the animation starts so
-        // body.menu-open cannot prevent the page from scrolling.
-        if (document.body.classList.contains('menu-open')) {
-          document.body.classList.remove('menu-open');
+        closeMobileMenu();
 
-          const menuButton = document.querySelector('#menuBtn');
-          if (menuButton) {
-            menuButton.setAttribute('aria-expanded', 'false');
-            menuButton.setAttribute('aria-label', 'Open menu');
-          }
-        }
+        smoothScrollTo(
+          target
+        );
 
-        smoothScrollTo(target);
-
-        // Update the URL without triggering a second scroll.
         try {
-          history.replaceState(null, '', href);
-        } catch {
-          // Ignore history errors in restricted browser contexts.
-        }
+          history.replaceState(
+            null,
+            '',
+            href
+          );
+        } catch {}
       },
       true
     );
   }
+
+  /* ------------------------------------------------------------
+     NAVIGATION
+     ------------------------------------------------------------ */
 
   function setupNavigation() {
     const nav =
@@ -2776,12 +2274,12 @@ if (label) {
     const menu =
       $('#mobileMenu');
 
+    if (!nav) {
+      return;
+    }
+
     const onScroll =
       () => {
-        if (!nav) {
-          return;
-        }
-
         nav.classList.toggle(
           'nav--scrolled',
           window.scrollY > 24
@@ -2798,61 +2296,27 @@ if (label) {
       }
     );
 
-    const closeMenu =
+    menuButton?.addEventListener(
+      'click',
       () => {
-        document.body.classList.remove(
-          'menu-open'
+        const open =
+          document.body.classList.toggle(
+            'menu-open'
+          );
+
+        menuButton.setAttribute(
+          'aria-expanded',
+          String(open)
         );
 
-        if (menuButton) {
-          menuButton.setAttribute(
-            'aria-expanded',
-            'false'
-          );
-
-          menuButton.setAttribute(
-            'aria-label',
-            'Open menu'
-          );
-        }
-      };
-
-    if (menuButton) {
-      menuButton.addEventListener(
-        'click',
-        () => {
-          const open =
-            document.body.classList.toggle(
-              'menu-open'
-            );
-
-          menuButton.setAttribute(
-            'aria-expanded',
-            String(open)
-          );
-
-          menuButton.setAttribute(
-            'aria-label',
-            open
-              ? 'Close menu'
-              : 'Open menu'
-          );
-        }
-      );
-    }
-
-    if (menu) {
-      menu
-        .querySelectorAll('a')
-        .forEach(
-          (link) => {
-            link.addEventListener(
-              'click',
-              closeMenu
-            );
-          }
+        menuButton.setAttribute(
+          'aria-label',
+          open
+            ? 'Close menu'
+            : 'Open menu'
         );
-    }
+      }
+    );
 
     document.addEventListener(
       'keydown',
@@ -2863,26 +2327,42 @@ if (label) {
             'menu-open'
           )
         ) {
-          closeMenu();
+          closeMobileMenu();
+          menuButton?.focus();
+        }
+      }
+    );
 
-          if (menuButton) {
-            menuButton.focus();
-          }
+    menu?.addEventListener(
+      'click',
+      (event) => {
+        if (
+          event.target instanceof Element &&
+          event.target.closest('a')
+        ) {
+          closeMobileMenu();
         }
       }
     );
   }
 
-  // ============================================================
-  // COUNTDOWN SETUP
-  // ============================================================
+  /* ------------------------------------------------------------
+     MAIN COUNTDOWN
+     ------------------------------------------------------------ */
+
+  function weddingTimestamp() {
+    const value =
+      cfg.weddingDateTime ||
+      `${cfg.dateISO || '2026-12-03'}T20:00:00+05:30`;
+
+    return new Date(
+      value
+    ).getTime();
+  }
 
   function setupCountdown() {
     const target =
-      new Date(
-        cfg.weddingDateTime ||
-        `${cfg.dateISO}T20:00:00+05:30`
-      ).getTime();
+      weddingTimestamp();
 
     const box =
       $('#countdownBox');
@@ -2919,9 +2399,6 @@ if (label) {
     const done =
       $('#countdownDone');
 
-    let timer =
-      null;
-
     const tick =
       () => {
         const difference =
@@ -2945,12 +2422,6 @@ if (label) {
           if (done) {
             done.hidden =
               false;
-          }
-
-          if (timer) {
-            clearInterval(
-              timer
-            );
           }
 
           return;
@@ -3003,142 +2474,170 @@ if (label) {
 
     tick();
 
-    timer =
-      setInterval(
+    const timer =
+      window.setInterval(
         tick,
         1000
       );
-  }
-  // ============================================================
-// FLOATING COUNTDOWN
-// ============================================================
 
-function setupFloatingCountdown() {
-  const widget =
-    $('#floatingCountdown');
-
-  const countdownSection =
-    $('#countdown');
-
-  if (!widget || !countdownSection) {
-    return;
+    window.addEventListener(
+      'pagehide',
+      () => {
+        window.clearInterval(
+          timer
+        );
+      },
+      {
+        once: true
+      }
+    );
   }
 
-  const daysEl =
-    $('#floatingDays');
+  /* ------------------------------------------------------------
+     FLOATING COUNTDOWN
+     ------------------------------------------------------------ */
 
-  const hoursEl =
-    $('#floatingHours');
+  function setupFloatingCountdown() {
+    const widget =
+      $('#floatingCountdown');
 
-  const minutesEl =
-    $('#floatingMinutes');
+    const section =
+      $('#countdown');
 
-  const target =
-    new Date(
-      cfg.weddingDateTime ||
-      `${cfg.dateISO}T20:00:00+05:30`
-    ).getTime();
-
-  if (Number.isNaN(target)) {
-    return;
-  }
-
-  const updateValues = () => {
-    const difference =
-      Math.max(
-        0,
-        target - Date.now()
-      );
+    if (
+      !widget ||
+      !section
+    ) {
+      return;
+    }
 
     const days =
-      Math.floor(
-        difference / 86400000
-      );
+      $('#floatingDays');
 
     const hours =
-      Math.floor(
-        difference / 3600000
-      ) % 24;
+      $('#floatingHours');
 
     const minutes =
-      Math.floor(
-        difference / 60000
-      ) % 60;
+      $('#floatingMinutes');
 
-    if (daysEl) {
-      daysEl.textContent =
-        String(days).padStart(2, '0');
+    const target =
+      weddingTimestamp();
+
+    if (
+      Number.isNaN(target)
+    ) {
+      return;
     }
 
-    if (hoursEl) {
-      hoursEl.textContent =
-        String(hours).padStart(2, '0');
-    }
-
-    if (minutesEl) {
-      minutesEl.textContent =
-        String(minutes).padStart(2, '0');
-    }
-  };
-
-  updateValues();
-
-  const timer =
-    setInterval(
-      updateValues,
-      1000
-    );
-
-  /*
-   * Expand only when the actual countdown section
-   * enters the viewport.
-   */
-  if (
-    'IntersectionObserver'
-    in window
-  ) {
-    const observer =
-      new IntersectionObserver(
-        (entries) => {
-          entries.forEach(
-            (entry) => {
-              widget.classList.toggle(
-                'is-expanded',
-                entry.isIntersecting
-              );
-            }
+    const update =
+      () => {
+        const difference =
+          Math.max(
+            0,
+            target -
+            Date.now()
           );
-        },
-        {
-          threshold: 0.18,
-          rootMargin:
-            '-10% 0px -12% 0px'
+
+        if (days) {
+          days.textContent =
+            String(
+              Math.floor(
+                difference /
+                86400000
+              )
+            ).padStart(
+              2,
+              '0'
+            );
         }
+
+        if (hours) {
+          hours.textContent =
+            String(
+              Math.floor(
+                difference /
+                3600000
+              ) % 24
+            ).padStart(
+              2,
+              '0'
+            );
+        }
+
+        if (minutes) {
+          minutes.textContent =
+            String(
+              Math.floor(
+                difference /
+                60000
+              ) % 60
+            ).padStart(
+              2,
+              '0'
+            );
+        }
+      };
+
+    update();
+
+    const intervalId =
+      window.setInterval(
+        update,
+        1000
       );
 
-    observer.observe(
-      countdownSection
+    if (
+      'IntersectionObserver'
+      in window
+    ) {
+      const observer =
+        new IntersectionObserver(
+          (entries) => {
+            entries.forEach(
+              (entry) => {
+                widget.classList.toggle(
+                  'is-expanded',
+                  entry.isIntersecting
+                );
+              }
+            );
+          },
+          {
+            threshold: 0.18,
+            rootMargin:
+              '-10% 0px -12% 0px'
+          }
+        );
+
+      observer.observe(
+        section
+      );
+    }
+
+    window.addEventListener(
+      'pagehide',
+      () => {
+        window.clearInterval(
+          intervalId
+        );
+      },
+      {
+        once: true
+      }
     );
   }
 
-  window.addEventListener(
-    'pagehide',
-    () => {
-      clearInterval(timer);
-    },
-    { once: true }
-  );
-}
-  // ============================================================
-  // THEME TOGGLE
-  // ============================================================
+  /* ------------------------------------------------------------
+     THEME TOGGLE
+     ------------------------------------------------------------ */
 
   function setupThemeToggle() {
-    const root =
-      document.documentElement;
-
     const button =
       $('#themeToggle');
+
+    if (!button) {
+      return;
+    }
 
     const icon =
       $('#themeToggleIcon');
@@ -3146,29 +2645,18 @@ function setupFloatingCountdown() {
     const label =
       $('#themeToggleLabel');
 
-    if (!button) {
-      return;
-    }
+    const current =
+      document.documentElement
+        .dataset.theme === 'light'
+        ? 'light'
+        : 'dark';
 
-    const applySiteTheme =
-      (theme) => {
+    const syncUi =
+      () => {
         const isDark =
-          theme === 'dark';
-
-        root.dataset.theme =
-          isDark ? 'dark' : 'light';
-
-        root.style.colorScheme =
-          isDark ? 'dark' : 'light';
-
-        try {
-          localStorage.setItem(
-            'palak-theme',
-            isDark ? 'dark' : 'light'
-          );
-        } catch {
-          /* Storage may be unavailable; the theme still changes in-page. */
-        }
+          document.documentElement
+            .dataset.theme !==
+          'light';
 
         button.setAttribute(
           'aria-label',
@@ -3184,7 +2672,9 @@ function setupFloatingCountdown() {
 
         if (icon) {
           icon.textContent =
-            isDark ? '☼' : '☾';
+            isDark
+              ? '☼'
+              : '☾';
         }
 
         if (label) {
@@ -3195,34 +2685,32 @@ function setupFloatingCountdown() {
         }
       };
 
-    const currentTheme =
-      root.dataset.theme === 'light'
-        ? 'light'
-        : 'dark';
+    setTheme(current);
 
-    applySiteTheme(currentTheme);
+    syncUi();
 
     button.addEventListener(
       'click',
       () => {
-        const nextTheme =
-          root.dataset.theme === 'dark'
+        const next =
+          document.documentElement
+            .dataset.theme === 'dark'
             ? 'light'
             : 'dark';
 
-        applySiteTheme(nextTheme);
+        setTheme(next);
+        syncUi();
       }
     );
   }
 
-  // ============================================================
-  // RENDER
-  // ============================================================
+  /* ------------------------------------------------------------
+     RENDER
+     ------------------------------------------------------------ */
 
   function render() {
     applyTheme();
     applyMetadata();
-    installEnhancementStyles();
 
     const sections =
       cfg.sections || {};
@@ -3257,9 +2745,7 @@ function setupFloatingCountdown() {
             : ''
         }
 
-        ${
-          invitationCardHTML()
-        }
+        ${invitationCardHTML()}
 
         ${
           show('timeline')
@@ -3311,9 +2797,9 @@ function setupFloatingCountdown() {
     setupThemeToggle();
   }
 
-  // ============================================================
-  // START
-  // ============================================================
+  /* ------------------------------------------------------------
+     START
+     ------------------------------------------------------------ */
 
   render();
 })();
