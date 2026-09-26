@@ -2022,142 +2022,148 @@
      TRUE SMOOTH SCROLL ENGINE
      ------------------------------------------------------------ */
 
-  let smoothScrollFrame = null;
-  let smoothScrollToken = 0;
+let smoothScrollFrame = null;
+let smoothScrollToken = 0;
 
-  function smoothScrollTo(target) {
-    if (!target) {
-      return;
-    }
+function smoothScrollTo(target) {
+  if (!target) {
+    return;
+  }
 
-    if (
-      smoothScrollFrame !== null
-    ) {
-      cancelAnimationFrame(
-        smoothScrollFrame
-      );
+  if (smoothScrollFrame !== null) {
+    cancelAnimationFrame(
+      smoothScrollFrame
+    );
 
-      smoothScrollFrame = null;
-    }
+    smoothScrollFrame = null;
+  }
 
-    smoothScrollToken += 1;
+  smoothScrollToken += 1;
 
-    const token =
-      smoothScrollToken;
+  const token =
+    smoothScrollToken;
 
-    
+  const startY =
+    window.scrollY ||
+    window.pageYOffset ||
+    0;
 
-    const distance =
-      targetY -
-      startY;
+  const maxY =
+    Math.max(
+      0,
+      document.documentElement.scrollHeight -
+      window.innerHeight
+    );
 
-    if (
-      Math.abs(distance) < 1
-    ) {
+  /*
+   * Put the requested section exactly at the top
+   * of the viewport.
+   *
+   * No navigation-height subtraction.
+   */
+  const targetY =
+    Math.min(
+      maxY,
+      Math.max(
+        0,
+        target.getBoundingClientRect().top +
+        startY
+      )
+    );
+
+  const distance =
+    targetY - startY;
+
+  if (
+    Math.abs(distance) < 1
+  ) {
+    window.scrollTo(
+      0,
+      targetY
+    );
+
+    return;
+  }
+
+  const duration =
+    Math.min(
+      1200,
+      Math.max(
+        700,
+        Math.abs(distance) * 0.55
+      )
+    );
+
+  const startTime =
+    performance.now();
+
+  const easeInOutCubic =
+    (t) =>
+      t < 0.5
+        ? 4 * t * t * t
+        : 1 -
+          Math.pow(
+            -2 * t + 2,
+            3
+          ) / 2;
+
+  const animate =
+    (now) => {
+      if (
+        token !==
+        smoothScrollToken
+      ) {
+        return;
+      }
+
+      const progress =
+        Math.min(
+          1,
+          (now - startTime) /
+          duration
+        );
+
+      const eased =
+        easeInOutCubic(
+          progress
+        );
+
+      const y =
+        startY +
+        distance * eased;
+
+      /*
+       * Numeric scrollTo is intentional.
+       * It bypasses native smooth-scrolling settings.
+       */
       window.scrollTo(
         0,
-        targetY
-      );
-      return;
-    }
-
-    const duration =
-      Math.min(
-        1200,
-        Math.max(
-          700,
-          Math.abs(distance) *
-          0.65
-        )
+        y
       );
 
-    const startTime =
-      performance.now();
-
-    const ease =
-      (t) =>
-        t < 0.5
-          ? 4 * t * t * t
-          : 1 -
-            Math.pow(
-              -2 * t + 2,
-              3
-            ) / 2;
-
-    const animate =
-      (now) => {
-        if (
-          token !==
-          smoothScrollToken
-        ) {
-          return;
-        }
-
-        const progress =
-          Math.min(
-            1,
-            (
-              now -
-              startTime
-            ) / duration
+      if (
+        progress < 1
+      ) {
+        smoothScrollFrame =
+          requestAnimationFrame(
+            animate
           );
-
-        const y =
-          startY +
-          distance *
-          ease(progress);
+      } else {
+        smoothScrollFrame =
+          null;
 
         window.scrollTo(
           0,
-          y
+          targetY
         );
+      }
+    };
 
-        if (
-          progress < 1
-        ) {
-          smoothScrollFrame =
-            requestAnimationFrame(
-              animate
-            );
-        } else {
-          smoothScrollFrame =
-            null;
-
-          window.scrollTo(
-            0,
-            targetY
-          );
-        }
-      };
-
-    smoothScrollFrame =
-      requestAnimationFrame(
-        animate
-      );
-  }
-
-  function closeMobileMenu() {
-    document.body.classList.remove(
-      'menu-open'
+  smoothScrollFrame =
+    requestAnimationFrame(
+      animate
     );
-
-    const button =
-      document.querySelector(
-        '#menuBtn'
-      );
-
-    if (button) {
-      button.setAttribute(
-        'aria-expanded',
-        'false'
-      );
-
-      button.setAttribute(
-        'aria-label',
-        'Open menu'
-      );
-    }
-  }
+}
 
   function setupSmoothScrolling() {
     /*
