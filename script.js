@@ -15,7 +15,22 @@
       : 'dark';
   const cfg = window.INVITE_CONFIG || {};
   const $ = (selector) => document.querySelector(selector);
+  /*
+   * Apply the saved theme immediately so the page
+   * does not default to the phone/browser theme.
+   */
+  const savedTheme =
+    localStorage.getItem('palak-theme');
 
+  document.documentElement.dataset.theme =
+    savedTheme === 'light'
+      ? 'light'
+      : 'dark';
+
+  document.documentElement.style.colorScheme =
+    savedTheme === 'light'
+      ? 'light'
+      : 'dark';
   const esc = (value) =>
     String(value ?? '').replace(/[&<>"']/g, (char) => ({
       '&': '&amp;',
@@ -2038,11 +2053,32 @@
           ${esc(cfg.groom)}
         </p>
 
-        <p
+              <p
           class="footer__date"
         >
           ${esc(cfg.dateLabel)}
         </p>
+
+        <button
+          class="theme-toggle"
+          id="themeToggle"
+          type="button"
+          aria-label="Switch to light mode"
+          aria-pressed="false"
+        >
+          <span
+            class="theme-toggle__icon"
+            id="themeToggleIcon"
+            aria-hidden="true"
+          >☼</span>
+
+          <span
+            class="theme-toggle__label"
+            id="themeToggleLabel"
+          >
+            Light Mode
+          </span>
+        </button>
 
       </footer>
     `;
@@ -2865,105 +2901,88 @@
         1000
       );
   }
-// ============================================================
-// LIGHT / DARK MODE
-// ============================================================
+  // ============================================================
+  // THEME TOGGLE
+  // ============================================================
 
-function setupThemeToggle() {
-  const root =
-    document.documentElement;
+  function setupThemeToggle() {
+    const root =
+      document.documentElement;
 
-  const button =
-    document.querySelector(
-      '#themeToggle'
+    const button =
+      $('#themeToggle');
+
+    const icon =
+      $('#themeToggleIcon');
+
+    const label =
+      $('#themeToggleLabel');
+
+    if (!button) {
+      return;
+    }
+
+    const applySiteTheme =
+      (theme) => {
+        const isDark =
+          theme === 'dark';
+
+        root.dataset.theme =
+          theme;
+
+        root.style.colorScheme =
+          theme;
+
+        localStorage.setItem(
+          'palak-theme',
+          theme
+        );
+
+        button.setAttribute(
+          'aria-label',
+          isDark
+            ? 'Switch to light mode'
+            : 'Switch to dark mode'
+        );
+
+        button.setAttribute(
+          'aria-pressed',
+          String(!isDark)
+        );
+
+        if (icon) {
+          icon.textContent =
+            isDark ? '☼' : '☾';
+        }
+
+        if (label) {
+          label.textContent =
+            isDark
+              ? 'Light Mode'
+              : 'Dark Mode';
+        }
+      };
+
+    const currentTheme =
+      root.dataset.theme === 'light'
+        ? 'light'
+        : 'dark';
+
+    applySiteTheme(currentTheme);
+
+    button.addEventListener(
+      'click',
+      () => {
+        const nextTheme =
+          root.dataset.theme === 'dark'
+            ? 'light'
+            : 'dark';
+
+        applySiteTheme(nextTheme);
+      }
     );
-
-  const icon =
-    document.querySelector(
-      '#themeToggleIcon'
-    );
-
-  const label =
-    document.querySelector(
-      '#themeToggleLabel'
-    );
-
-  if (!button) {
-    return;
   }
 
-  const savedTheme =
-    localStorage.getItem(
-      'palak-theme'
-    );
-
-  // DARK IS ALWAYS THE DEFAULT.
-  const initialTheme =
-    savedTheme === 'light'
-      ? 'light'
-      : 'dark';
-
-  const applyTheme =
-    (theme) => {
-      root.dataset.theme =
-        theme;
-
-      root.style.colorScheme =
-        theme;
-
-      localStorage.setItem(
-        'palak-theme',
-        theme
-      );
-
-      const isDark =
-        theme === 'dark';
-
-      button.setAttribute(
-        'aria-label',
-        isDark
-          ? 'Switch to light mode'
-          : 'Switch to dark mode'
-      );
-
-      button.setAttribute(
-        'aria-pressed',
-        String(!isDark)
-      );
-
-      if (icon) {
-        icon.textContent =
-          isDark
-            ? '☼'
-            : '☾';
-      }
-
-      if (label) {
-        label.textContent =
-          isDark
-            ? 'Light Mode'
-            : 'Dark Mode';
-      }
-    };
-
-  applyTheme(
-    initialTheme
-  );
-
-  button.addEventListener(
-    'click',
-    () => {
-      const nextTheme =
-        root.dataset.theme === 'dark'
-          ? 'light'
-          : 'dark';
-
-      applyTheme(
-        nextTheme
-      );
-    }
-  );
-}
   // ============================================================
   // RENDER
   // ============================================================
