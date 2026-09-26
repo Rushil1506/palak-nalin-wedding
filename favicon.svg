@@ -1,6 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
-<rect width="128" height="128" rx="64" fill="#faf6ee"/>
-<circle cx="64" cy="64" r="49" fill="#fffdf8" stroke="#c2a15c" stroke-width="3"/>
-<text x="64" y="75" text-anchor="middle" fill="#43403a" font-family="Georgia,serif" font-size="35" font-weight="600">NP</text>
-<circle cx="95" cy="36" r="4" fill="#c97f87"/>
-</svg>
