@@ -2546,67 +2546,143 @@
   // SMOOTH SCROLLING
   // ============================================================
 
+  // ============================================================
+  // TRUE SMOOTH SCROLLING
+  // ============================================================
+  // Uses our own requestAnimationFrame animation instead of the
+  // browser's native smooth-scroll implementation. This avoids
+  // mobile-browser/reduced-motion settings turning the scroll
+  // into an instant jump.
+
+  let smoothScrollFrame = null;
+  let smoothScrollToken = 0;
+
   function smoothScrollTo(target) {
     if (!target) {
       return;
     }
 
-    const navOffset = 76;
-    const targetY =
-      target.getBoundingClientRect().top +
-      window.pageYOffset -
-      navOffset;
-
-    try {
-      window.scrollTo({
-        top: Math.max(0, targetY),
-        behavior: 'smooth'
-      });
-    } catch {
-      window.scrollTo(
-        0,
-        Math.max(0, targetY)
-      );
+    if (smoothScrollFrame !== null) {
+      cancelAnimationFrame(smoothScrollFrame);
+      smoothScrollFrame = null;
     }
+
+    smoothScrollToken += 1;
+    const token = smoothScrollToken;
+
+    const nav = document.querySelector('#siteNav');
+    const navOffset = nav
+      ? nav.getBoundingClientRect().height
+      : 76;
+
+    const startY = window.scrollY || window.pageYOffset || 0;
+    const maxY = Math.max(
+      0,
+      document.documentElement.scrollHeight - window.innerHeight
+    );
+
+    const targetY = Math.min(
+      maxY,
+      Math.max(
+        0,
+        target.getBoundingClientRect().top + startY - navOffset - 8
+      )
+    );
+
+    const distance = targetY - startY;
+
+    if (Math.abs(distance) < 1) {
+      window.scrollTo(0, targetY);
+      return;
+    }
+
+    const duration = Math.min(1100, Math.max(650, Math.abs(distance) * 0.55));
+    const startTime = performance.now();
+
+    const easeInOutCubic = (t) =>
+      t < 0.5
+        ? 4 * t * t * t
+        : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
+    const animate = (now) => {
+      if (token !== smoothScrollToken) {
+        return;
+      }
+
+      const elapsed = now - startTime;
+      const progress = Math.min(1, elapsed / duration);
+      const eased = easeInOutCubic(progress);
+      const y = startY + distance * eased;
+
+      // Numeric scrollTo keeps every frame under our control.
+      window.scrollTo(0, y);
+
+      if (progress < 1) {
+        smoothScrollFrame = requestAnimationFrame(animate);
+      } else {
+        smoothScrollFrame = null;
+        window.scrollTo(0, targetY);
+      }
+    };
+
+    smoothScrollFrame = requestAnimationFrame(animate);
   }
 
   function setupSmoothScrolling() {
-    document
-      .querySelectorAll('a[href^="#"]')
-      .forEach((link) => {
-        link.addEventListener(
-          'click',
-          (event) => {
-            const href =
-              link.getAttribute('href');
+    // Event delegation means links that are rendered later still work.
+    // Capture phase prevents the browser's native anchor jump.
+    document.addEventListener(
+      'click',
+      (event) => {
+        const link = event.target.closest('a[href^="#"]');
 
-            if (
-              !href ||
-              href === '#' ||
-              href.length <= 1
-            ) {
-              return;
-            }
+        if (!link) {
+          return;
+        }
 
-            const target =
-              document.querySelector(href);
+        const href = link.getAttribute('href');
 
-            if (!target) {
-              return;
-            }
+        if (!href || href === '#' || href.length <= 1) {
+          return;
+        }
 
-            event.preventDefault();
+        let target = null;
 
-            smoothScrollTo(target);
+        try {
+          target = document.querySelector(href);
+        } catch {
+          return;
+        }
 
-            history.replaceState(
-              null,
-              '',
-              href
-            );
+        if (!target) {
+          return;
+        }
+
+        event.preventDefault();
+
+        // Close the mobile menu before the animation starts so
+        // body.menu-open cannot prevent the page from scrolling.
+        if (document.body.classList.contains('menu-open')) {
+          document.body.classList.remove('menu-open');
+
+          const menuButton = document.querySelector('#menuBtn');
+          if (menuButton) {
+            menuButton.setAttribute('aria-expanded', 'false');
+            menuButton.setAttribute('aria-label', 'Open menu');
           }
-        );
-      });
+        }
+
+        smoothScrollTo(target);
+
+        // Update the URL without triggering a second scroll.
+        try {
+          history.replaceState(null, '', href);
+        } catch {
+          // Ignore history errors in restricted browser contexts.
+        }
+      },
+      true
+    );
   }
 
   function setupNavigation() {
